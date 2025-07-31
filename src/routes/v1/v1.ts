@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import anthropicRouter from "./anthropic.js";
+import anthropicRouter from "./anthropic/anthropic.js";
 import openaiRouter from "./openai/openai.js";
 
 const v1Router = Router();

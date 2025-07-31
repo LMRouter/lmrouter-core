@@ -8,7 +8,10 @@ interface LMRouterCoreConfigServer {
   logging: string;
 }
 
+type LMRouterCoreConfigProviderType = "openai" | "anthropic";
+
 interface LMRouterCoreConfigProvider {
+  type: LMRouterCoreConfigProviderType;
   base_url?: string;
   api_key: string;
 }
@@ -19,6 +22,7 @@ interface LMRouterCoreConfigModelProvider {
 }
 
 interface LMRouterCoreConfigModel {
+  max_tokens?: number;
   providers: LMRouterCoreConfigModelProvider[];
 }
 

@@ -9,11 +9,13 @@ access_keys:
 
 providers:
   openai:
+    type: openai
     api_key: sk-openai-api-key
   anthropic:
-    base_url: https://api.anthropic.com/v1
+    type: anthropic
     api_key: sk-anthropic-api-key
   google:
+    type: openai
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key: sk-google-api-key
 
@@ -31,6 +33,7 @@ models:
       - provider: openai
         model: text-embedding-3-large
   anthropic/claude-sonnet-4:
+    max_tokens: 64000
     providers:
       - provider: anthropic
         model: claude-sonnet-4-0
