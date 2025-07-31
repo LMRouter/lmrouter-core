@@ -35,8 +35,8 @@ export const listModels = (req: Request, res: Response) => {
 
   res.status(200).json({
     data: models,
-    first_id: models[0].id,
+    first_id: models.length > 0 ? models[0].id : null,
     has_more: false,
-    last_id: models[models.length - 1].id,
+    last_id: models.length > 0 ? models[models.length - 1].id : null,
   });
 };
