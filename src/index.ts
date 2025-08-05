@@ -1,13 +1,22 @@
+import { serve } from "@hono/node-server";
+
 import app from "./app.js";
 import { getConfig } from "./utils/config.js";
 
 const main = () => {
   const config = getConfig();
-  app.listen(config.server.port, config.server.host, () => {
-    console.log(
-      `LMRouter Core listening on http://${config.server.host}:${config.server.port}/`,
-    );
-  });
+  serve(
+    {
+      fetch: app.fetch,
+      port: config.server.port,
+      hostname: config.server.host,
+    },
+    (info) => {
+      console.log(
+        `LMRouter Core listening on http://${info.family === "IPv4" ? info.address : `[${info.address}]`}:${info.port}/`,
+      );
+    },
+  );
 };
 
 main();

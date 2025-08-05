@@ -23,21 +23,15 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.57.0",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "morgan": "^1.10.1",
-    "openai": "^5.10.2",
-    "request-ip": "^3.3.0",
+    "@hono/node-server": "^1.18.1",
+    "hono": "^4.8.12",
+    "openai": "^5.11.0",
     "yaml": "^2.8.0"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/morgan": "^1.9.10",
-    "@types/node": "^24.1.0",
-    "@types/request-ip": "^0.0.41",
-    "prettier": "3.6.2",
-    "tsx": "^4.20.3",
+    "@types/node": "^20.11.17",
+    "prettier": "^3.6.2",
+    "tsx": "^4.7.1",
     "typescript": "^5.8.3"
   }
 }

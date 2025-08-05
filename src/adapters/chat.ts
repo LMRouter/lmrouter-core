@@ -1,5 +1,5 @@
 import { Stream as AnthropicStream } from "@anthropic-ai/sdk/core/streaming";
-import {
+import type {
   ContentBlock,
   ImageBlockParam,
   Message,
@@ -10,8 +10,8 @@ import {
   Tool,
 } from "@anthropic-ai/sdk/resources/messages";
 import { Stream as OpenAIStream } from "openai/core/streaming";
-import { FunctionParameters } from "openai/resources";
-import {
+import type { FunctionParameters } from "openai/resources";
+import type {
   ChatCompletion,
   ChatCompletionChunk,
   ChatCompletionCreateParamsBase,

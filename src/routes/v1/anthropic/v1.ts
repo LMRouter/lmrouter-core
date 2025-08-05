@@ -1,17 +1,12 @@
-import { Router } from "express";
+import { Hono } from "hono";
 
-import { createMessage } from "../../../controllers/v1/anthropic/v1/messages.js";
-import {
-  getModel,
-  listModels,
-} from "../../../controllers/v1/anthropic/v1/models.js";
-import { auth } from "../../../middlewares/auth.js";
+import type { Context } from "../../../types/hono.js";
+import messagesRouter from "./v1/messages.js";
+import modelsRouter from "./v1/models.js";
 
-const anthropicV1Router = Router();
+const anthropicV1Router = new Hono<Context>();
 
-anthropicV1Router.get("/models", listModels);
-anthropicV1Router.get("/models/*model", getModel);
-
-anthropicV1Router.post("/messages", auth, createMessage);
+anthropicV1Router.route("/messages", messagesRouter);
+anthropicV1Router.route("/models", modelsRouter);
 
 export default anthropicV1Router;

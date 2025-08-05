@@ -1,59 +1,50 @@
-import cors from "cors";
-import express, { NextFunction, Request, Response } from "express";
-import logger from "morgan";
-import requestIp from "request-ip";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
 
-import v1Router from "./routes/v1/v1.js";
+import v1Router from "./routes/v1.js";
+import type { Context } from "./types/hono.js";
 import { getConfig } from "./utils/config.js";
 import { getUptime } from "./utils/utils.js";
 
-const app = express();
+const app = new Hono<Context>();
 const cfg = getConfig();
 
-logger.token(
-  "clientIp",
-  (req: express.Request, res: express.Response) => req.clientIp,
-);
-if (cfg.server.logging === "dev") {
-  app.use(logger("dev"));
-} else {
-  app.use(
-    logger(
-      ':clientIp - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" - :response-time ms',
-    ),
-  );
-}
-
+app.use(logger());
 app.use(cors());
-app.use(express.json({ limit: "10mb" }));
-app.use(requestIp.mw());
 
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({
+app.get("/", (c) => {
+  return c.json({
     message: "Welcome to LMRouter Core!",
     uptime: getUptime(),
     apis_available: ["v1"],
   });
 });
 
-app.use("/v1", v1Router);
+app.route("/v1", v1Router);
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.onError((err, c) => {
   console.error(err.stack);
-  res.status(500).json({
-    error: {
-      message: "Internal Server Error",
-      stack: cfg.server.logging === "dev" ? err.stack : undefined,
+  return c.json(
+    {
+      error: {
+        message: "Internal Server Error",
+        stack: cfg.server.logging === "dev" ? err.stack : undefined,
+      },
     },
-  });
+    500,
+  );
 });
 
-app.all("*splat", (req: Request, res: Response) => {
-  res.status(404).json({
-    error: {
-      message: "Not Found",
+app.notFound((c) => {
+  return c.json(
+    {
+      error: {
+        message: "Not Found",
+      },
     },
-  });
+    404,
+  );
 });
 
 export default app;

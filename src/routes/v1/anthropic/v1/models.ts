@@ -1,28 +1,34 @@
-import { Request, Response } from "express";
+import { Hono } from "hono";
 
+import type { Context } from "../../../../types/hono.js";
 import { getConfig } from "../../../../utils/config.js";
 
-export const getModel = (req: Request, res: Response) => {
+const modelsRouter = new Hono<Context>();
+
+modelsRouter.get("/:model{.+}", (c) => {
   const cfg = getConfig();
-  const modelName = (req.params.model as unknown as string[]).join("/");
+  const modelName = c.req.param("model");
   const model = cfg.models[modelName];
   if (!model) {
-    return res.status(404).json({
-      error: {
-        message: "Model not found",
+    return c.json(
+      {
+        error: {
+          message: "Model not found",
+        },
       },
-    });
+      404,
+    );
   }
 
-  res.status(200).json({
+  return c.json({
     id: modelName,
     type: "model",
     display_name: modelName,
     created_at: "1970-01-01T00:00:00Z",
   });
-};
+});
 
-export const listModels = (req: Request, res: Response) => {
+modelsRouter.get("/", (c) => {
   const cfg = getConfig();
   const models = Object.keys(cfg.models).map((name) => {
     return {
@@ -33,10 +39,12 @@ export const listModels = (req: Request, res: Response) => {
     };
   });
 
-  res.status(200).json({
+  return c.json({
     data: models,
     first_id: models.length > 0 ? models[0].id : null,
     has_more: false,
     last_id: models.length > 0 ? models[models.length - 1].id : null,
   });
-};
+});
+
+export default modelsRouter;

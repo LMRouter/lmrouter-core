@@ -1,31 +1,37 @@
-import { Request, Response, NextFunction } from "express";
+import { createMiddleware } from "hono/factory";
 
+import type { Context } from "../types/hono.js";
 import { getConfig } from "../utils/config.js";
 
-export const auth = (req: Request, res: Response, next: NextFunction) => {
+export const auth = createMiddleware<Context>(async (c, next) => {
   const apiKey =
-    (req.headers["authorization"] as string)?.split(" ")[1] ??
-    (req.headers["x-api-key"] as string);
+    c.req.header("Authorization")?.split(" ")[1] ?? c.req.header("x-api-key");
   if (!apiKey) {
-    return res.status(401).json({
-      error: {
-        message: "API key is required",
+    return c.json(
+      {
+        error: {
+          message: "API key is required",
+        },
       },
-    });
+      401,
+    );
   }
 
   if (apiKey.startsWith("BYOK:")) {
-    req.byok = apiKey.slice(5);
+    c.set("byok", apiKey.slice(5));
   } else {
     const cfg = getConfig();
     if (!cfg.access_keys.includes(apiKey)) {
-      return res.status(401).json({
-        error: {
-          message: "Invalid API key",
+      return c.json(
+        {
+          error: {
+            message: "Invalid API key",
+          },
         },
-      });
+        401,
+      );
     }
   }
 
-  next();
-};
+  await next();
+});

@@ -1,28 +1,34 @@
-import { Request, Response } from "express";
+import { Hono } from "hono";
 
+import type { Context } from "../../../../types/hono.js";
 import { getConfig } from "../../../../utils/config.js";
 
-export const getModel = (req: Request, res: Response) => {
+const modelsRouter = new Hono<Context>();
+
+modelsRouter.get("/:model{.+}", (c) => {
   const cfg = getConfig();
-  const modelName = (req.params.model as unknown as string[]).join("/");
+  const modelName = c.req.param("model");
   const model = cfg.models[modelName];
   if (!model) {
-    return res.status(404).json({
-      error: {
-        message: "Model not found",
+    return c.json(
+      {
+        error: {
+          message: "Model not found",
+        },
       },
-    });
+      404,
+    );
   }
 
-  res.status(200).json({
+  return c.json({
     id: modelName,
     object: "model",
     created: 0,
     owned_by: model.providers.map((provider) => provider.provider).join(", "),
   });
-};
+});
 
-export const listModels = (req: Request, res: Response) => {
+modelsRouter.get("/", (c) => {
   const cfg = getConfig();
   const models = Object.entries(cfg.models).map(([name, model]) => {
     return {
@@ -33,8 +39,10 @@ export const listModels = (req: Request, res: Response) => {
     };
   });
 
-  res.status(200).json({
+  return c.json({
     object: "list",
     data: models,
   });
-};
+});
+
+export default modelsRouter;
