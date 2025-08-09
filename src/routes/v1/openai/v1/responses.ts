@@ -34,11 +34,15 @@ responsesRouter.post("/", async (c) => {
 
     const adapter = OpenAIResponsesAdapterFactory.getAdapter(provider);
     if (reqBody.stream !== true) {
-      const response = await adapter.sendRequest(provider, reqBody);
+      const response = await adapter.sendRequest(provider, reqBody, {
+        maxTokens: model.max_tokens,
+      });
       return c.json(response);
     }
 
-    const s = adapter.sendRequestStreaming(provider, reqBody);
+    const s = adapter.sendRequestStreaming(provider, reqBody, {
+      maxTokens: model.max_tokens,
+    });
     return streamSSE(c, async (stream) => {
       for await (const chunk of s) {
         await stream.writeSSE({
