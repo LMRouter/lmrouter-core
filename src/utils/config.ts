@@ -12,7 +12,10 @@ export interface LMRouterCoreConfigServer {
   logging: string;
 }
 
-export type LMRouterCoreConfigProviderType = "openai" | "anthropic";
+export type LMRouterCoreConfigProviderType =
+  | "openai"
+  | "openai_woresp"
+  | "anthropic";
 
 export interface LMRouterCoreConfigProvider {
   type: LMRouterCoreConfigProviderType;

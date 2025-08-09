@@ -9,6 +9,7 @@ import type {
 
 import { LMRouterAdapter } from "../../../adapter.js";
 import { OpenAIResponsesOpenAIAdapter } from "./openai.js";
+import { OpenAIResponsesOthersAdapter } from "./others.js";
 import type { LMRouterCoreConfigProvider } from "../../../../utils/config.js";
 
 export type OpenAIResponsesInputOptions = {
@@ -24,6 +25,7 @@ export type OpenAIResponsesAdapter = LMRouterAdapter<
 
 const adapters: Record<string, new () => OpenAIResponsesAdapter> = {
   openai: OpenAIResponsesOpenAIAdapter,
+  others: OpenAIResponsesOthersAdapter,
 };
 
 export class OpenAIResponsesAdapterFactory {
@@ -31,7 +33,7 @@ export class OpenAIResponsesAdapterFactory {
     provider: LMRouterCoreConfigProvider,
   ): OpenAIResponsesAdapter {
     if (!Object.keys(adapters).includes(provider.type)) {
-      throw new Error(`Unsupported provider: ${provider.type}`);
+      return new adapters.others();
     }
     return new adapters[provider.type]();
   }

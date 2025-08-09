@@ -20,6 +20,7 @@ export type OpenAIImageGenerationAdapter = LMRouterAdapter<
 
 const adapters: Record<string, new () => OpenAIImageGenerationAdapter> = {
   openai: OpenAIImageGenerationOpenAIAdapter,
+  openai_woresp: OpenAIImageGenerationOpenAIAdapter,
 };
 
 export class OpenAIImageGenerationAdapterFactory {

@@ -26,6 +26,7 @@ export type OpenAIChatCompletionAdapter = LMRouterAdapter<
 const adapters: Record<string, new () => OpenAIChatCompletionAdapter> = {
   anthropic: OpenAIChatCompletionAnthropicAdapter,
   openai: OpenAIChatCompletionOpenAIAdapter,
+  openai_woresp: OpenAIChatCompletionOpenAIAdapter,
 };
 
 export class OpenAIChatCompletionAdapterFactory {
