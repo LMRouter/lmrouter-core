@@ -13,11 +13,11 @@ providers:
     type: anthropic
     api_key: ""
   google:
-    type: openai
+    type: openai_woresp
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key: ""
   perplexity:
-    type: openai
+    type: openai_woresp
     base_url: https://api.perplexity.ai
     api_key: ""
   fireworks:
@@ -29,11 +29,11 @@ providers:
     base_url: https://api.groq.com/openai/v1
     api_key: ""
   cerebras:
-    type: openai
+    type: openai_woresp
     base_url: https://api.cerebras.ai/v1
     api_key: ""
   openrouter:
-    type: openai
+    type: openai_woresp
     base_url: https://openrouter.ai/api/v1
     api_key: ""
 

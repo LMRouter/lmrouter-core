@@ -15,11 +15,11 @@ providers:
     type: anthropic
     api_key: sk-anthropic-api-key
   google:
-    type: openai
+    type: openai_woresp
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key: sk-google-api-key
   openrouter:
-    type: openai
+    type: openai_woresp
     base_url: https://openrouter.ai/api/v1
     api_key: sk-openrouter-api-key
 

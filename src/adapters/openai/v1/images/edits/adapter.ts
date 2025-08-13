@@ -20,6 +20,7 @@ export type OpenAIImageEditAdapter = LMRouterAdapter<
 
 const adapters: Record<string, new () => OpenAIImageEditAdapter> = {
   openai: OpenAIImageEditOpenAIAdapter,
+  openai_woresp: OpenAIImageEditOpenAIAdapter,
 };
 
 export class OpenAIImageEditAdapterFactory {
