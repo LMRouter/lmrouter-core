@@ -27,6 +27,7 @@ import {
   type OpenAIChatCompletionAdapter,
 } from "../chat/adapter.js";
 import type { LMRouterCoreConfigProvider } from "../../../../utils/config.js";
+import { ResponsesStoreFactory } from "../../../../utils/responses-store.js";
 
 export class OpenAIResponsesOthersAdapter implements OpenAIResponsesAdapter {
   response: Response | undefined;
@@ -45,7 +46,9 @@ export class OpenAIResponsesOthersAdapter implements OpenAIResponsesAdapter {
     const adapter = this.getAdapter(provider);
     const response = await adapter.sendRequest(
       provider,
-      this.convertRequest(request),
+      this.convertRequest(
+        await ResponsesStoreFactory.getStore().hydrateRequest(request),
+      ),
       {
         maxTokens: options?.maxTokens,
       },
@@ -61,7 +64,9 @@ export class OpenAIResponsesOthersAdapter implements OpenAIResponsesAdapter {
     const adapter = this.getAdapter(provider);
     const stream = adapter.sendRequestStreaming(
       provider,
-      this.convertRequest(request),
+      this.convertRequest(
+        await ResponsesStoreFactory.getStore().hydrateRequest(request),
+      ),
       {
         maxTokens: options?.maxTokens,
       },

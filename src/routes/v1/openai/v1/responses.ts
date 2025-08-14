@@ -8,6 +8,7 @@ import type { ResponseCreateParamsBase } from "openai/resources/responses/respon
 import { OpenAIResponsesAdapterFactory } from "../../../../adapters/openai/v1/responses/adapter.js";
 import { auth } from "../../../../middlewares/auth.js";
 import type { Context } from "../../../../types/hono.js";
+import { ResponsesStoreFactory } from "../../../../utils/responses-store.js";
 import { getModel, iterateModelProviders } from "../../../../utils/utils.js";
 
 const responsesRouter = new Hono<Context>();
@@ -37,6 +38,9 @@ responsesRouter.post("/", async (c) => {
       const response = await adapter.sendRequest(provider, reqBody, {
         maxTokens: model.max_tokens,
       });
+      if (reqBody.store !== false) {
+        await ResponsesStoreFactory.getStore().set(reqBody, response);
+      }
       return c.json(response);
     }
 
@@ -49,6 +53,9 @@ responsesRouter.post("/", async (c) => {
           event: chunk.type,
           data: JSON.stringify(chunk),
         });
+      }
+      if (reqBody.store !== false && adapter.response) {
+        await ResponsesStoreFactory.getStore().set(reqBody, adapter.response);
       }
     });
   });
