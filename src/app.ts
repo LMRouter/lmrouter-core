@@ -5,6 +5,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
+import rootAnthropicRouter from "./routes/anthropic.js";
+import rootOpenaiRouter from "./routes/openai.js";
 import v1Router from "./routes/v1.js";
 import type { Context } from "./types/hono.js";
 import { getConfig } from "./utils/config.js";
@@ -23,6 +25,8 @@ app.get("/", (c) => {
   });
 });
 
+app.route("/anthropic", rootAnthropicRouter);
+app.route("/openai", rootOpenaiRouter);
 app.route("/v1", v1Router);
 
 app.onError((err, c) => {
