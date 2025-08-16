@@ -21,7 +21,7 @@ providers:
     base_url: https://api.perplexity.ai
     api_key: ""
   fireworks:
-    type: openai
+    type: fireworks
     base_url: https://api.fireworks.ai/inference/v1
     api_key: ""
   groq:

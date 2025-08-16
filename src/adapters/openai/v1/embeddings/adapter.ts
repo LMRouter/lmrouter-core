@@ -18,6 +18,7 @@ export type OpenAIEmbeddingsAdapter = LMRouterAdapter<
 >;
 
 const adapters: Record<string, new () => OpenAIEmbeddingsAdapter> = {
+  fireworks: OpenAIEmbeddingsOpenAIAdapter,
   openai: OpenAIEmbeddingsOpenAIAdapter,
   openai_woresp: OpenAIEmbeddingsOpenAIAdapter,
 };

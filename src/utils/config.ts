@@ -15,7 +15,8 @@ export interface LMRouterCoreConfigServer {
 export type LMRouterCoreConfigProviderType =
   | "openai"
   | "openai_woresp"
-  | "anthropic";
+  | "anthropic"
+  | "fireworks";
 
 export interface LMRouterCoreConfigProvider {
   type: LMRouterCoreConfigProviderType;
