@@ -8,6 +8,7 @@ import {
   type LMRouterCoreConfigModel,
   type LMRouterCoreConfigProvider,
 } from "./config.js";
+import type { ContextEnv } from "../types/hono.js";
 
 export const getUptime = () => {
   const seconds = Math.floor(process.uptime());
@@ -20,7 +21,7 @@ export const getUptime = () => {
 
 export const getModel = (
   modelName: string,
-  c: Context,
+  c: Context<ContextEnv>,
 ): LMRouterCoreConfigModel | null => {
   const cfg = getConfig(c);
 
@@ -56,14 +57,24 @@ export const getModel = (
 };
 
 export const iterateModelProviders = async (
-  model: LMRouterCoreConfigModel,
-  c: Context,
+  c: Context<ContextEnv>,
   cb: (modelName: string, provider: LMRouterCoreConfigProvider) => Promise<any>,
 ): Promise<any> => {
   const cfg = getConfig(c);
   let error: any = null;
 
-  for (const provider of model.providers) {
+  if (!c.var.model) {
+    return c.json(
+      {
+        error: {
+          message: "Model is not set",
+        },
+      },
+      500,
+    );
+  }
+
+  for (const provider of c.var.model.providers) {
     const providerCfg = cfg.providers[provider.provider];
     if (!providerCfg) {
       continue;

@@ -6,28 +6,17 @@ import type { EmbeddingCreateParams } from "openai/resources";
 
 import { OpenAIEmbeddingsAdapterFactory } from "../../../../adapters/openai/v1/embeddings/adapter.js";
 import { auth } from "../../../../middlewares/auth.js";
+import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
-import { getModel, iterateModelProviders } from "../../../../utils/utils.js";
+import { iterateModelProviders } from "../../../../utils/utils.js";
 
 const embeddingsRouter = new Hono<ContextEnv>();
 
-embeddingsRouter.use(auth);
+embeddingsRouter.use(auth, parseModel);
 
 embeddingsRouter.post("/", async (c) => {
   const body = await c.req.json();
-  const model = getModel(body.model, c);
-  if (!model) {
-    return c.json(
-      {
-        error: {
-          message: "Model not found",
-        },
-      },
-      404,
-    );
-  }
-
-  return await iterateModelProviders(model, c, async (modelName, provider) => {
+  return await iterateModelProviders(c, async (modelName, provider) => {
     const reqBody = { ...body } as EmbeddingCreateParams;
     reqBody.model = modelName;
 

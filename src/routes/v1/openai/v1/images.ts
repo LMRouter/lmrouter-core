@@ -11,28 +11,17 @@ import type {
 import { OpenAIImageEditAdapterFactory } from "../../../../adapters/openai/v1/images/edits/adapter.js";
 import { OpenAIImageGenerationAdapterFactory } from "../../../../adapters/openai/v1/images/generations/adapter.js";
 import { auth } from "../../../../middlewares/auth.js";
+import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
-import { getModel, iterateModelProviders } from "../../../../utils/utils.js";
+import { iterateModelProviders } from "../../../../utils/utils.js";
 
 const imagesRouter = new Hono<ContextEnv>();
 
-imagesRouter.use(auth);
+imagesRouter.use(auth, parseModel);
 
 imagesRouter.post("/generations", async (c) => {
   const body = await c.req.json();
-  const model = getModel(body.model, c);
-  if (!model) {
-    return c.json(
-      {
-        error: {
-          message: "Model not found",
-        },
-      },
-      404,
-    );
-  }
-
-  return await iterateModelProviders(model, c, async (modelName, provider) => {
+  return await iterateModelProviders(c, async (modelName, provider) => {
     const reqBody = { ...body } as ImageGenerateParamsBase;
     reqBody.model = modelName;
 
@@ -56,19 +45,7 @@ imagesRouter.post("/generations", async (c) => {
 
 imagesRouter.post("/edits", async (c) => {
   const body = await c.req.json();
-  const model = getModel(body.model, c);
-  if (!model) {
-    return c.json(
-      {
-        error: {
-          message: "Model not found",
-        },
-      },
-      404,
-    );
-  }
-
-  return await iterateModelProviders(model, c, async (modelName, provider) => {
+  return await iterateModelProviders(c, async (modelName, provider) => {
     const reqBody = { ...body } as ImageEditParamsBase;
     reqBody.model = modelName;
 

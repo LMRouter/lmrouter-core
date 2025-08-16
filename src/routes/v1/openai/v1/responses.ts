@@ -7,36 +7,25 @@ import type { ResponseCreateParamsBase } from "openai/resources/responses/respon
 
 import { OpenAIResponsesAdapterFactory } from "../../../../adapters/openai/v1/responses/adapter.js";
 import { auth } from "../../../../middlewares/auth.js";
+import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
 import { ResponsesStoreFactory } from "../../../../utils/responses-store.js";
-import { getModel, iterateModelProviders } from "../../../../utils/utils.js";
+import { iterateModelProviders } from "../../../../utils/utils.js";
 
 const responsesRouter = new Hono<ContextEnv>();
 
-responsesRouter.use(auth);
+responsesRouter.use(auth, parseModel);
 
 responsesRouter.post("/", async (c) => {
   const body = await c.req.json();
-  const model = getModel(body.model, c);
-  if (!model) {
-    return c.json(
-      {
-        error: {
-          message: "Model not found",
-        },
-      },
-      404,
-    );
-  }
-
-  return await iterateModelProviders(model, c, async (modelName, provider) => {
+  return await iterateModelProviders(c, async (modelName, provider) => {
     const reqBody = { ...body } as ResponseCreateParamsBase;
     reqBody.model = modelName;
 
     const adapter = OpenAIResponsesAdapterFactory.getAdapter(provider);
     if (reqBody.stream !== true) {
       const response = await adapter.sendRequest(provider, reqBody, {
-        maxTokens: model.max_tokens,
+        maxTokens: c.var.model!.max_tokens,
       });
       if (reqBody.store !== false) {
         await ResponsesStoreFactory.getStore().set(reqBody, response);
@@ -45,7 +34,7 @@ responsesRouter.post("/", async (c) => {
     }
 
     const s = adapter.sendRequestStreaming(provider, reqBody, {
-      maxTokens: model.max_tokens,
+      maxTokens: c.var.model!.max_tokens,
     });
     return streamSSE(c, async (stream) => {
       for await (const chunk of s) {

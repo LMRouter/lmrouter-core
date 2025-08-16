@@ -7,28 +7,17 @@ import type { ChatCompletionCreateParamsBase } from "openai/resources/chat/compl
 
 import { OpenAIChatCompletionAdapterFactory } from "../../../../adapters/openai/v1/chat/adapter.js";
 import { auth } from "../../../../middlewares/auth.js";
+import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
-import { getModel, iterateModelProviders } from "../../../../utils/utils.js";
+import { iterateModelProviders } from "../../../../utils/utils.js";
 
 const chatRouter = new Hono<ContextEnv>();
 
-chatRouter.use(auth);
+chatRouter.use(auth, parseModel);
 
 chatRouter.post("/completions", async (c) => {
   const body = await c.req.json();
-  const model = getModel(body.model, c);
-  if (!model) {
-    return c.json(
-      {
-        error: {
-          message: "Model not found",
-        },
-      },
-      404,
-    );
-  }
-
-  return await iterateModelProviders(model, c, async (modelName, provider) => {
+  return await iterateModelProviders(c, async (modelName, provider) => {
     const reqBody = { ...body } as ChatCompletionCreateParamsBase;
     reqBody.model = modelName;
     if (reqBody.stream === true) {
@@ -40,13 +29,13 @@ chatRouter.post("/completions", async (c) => {
     const adapter = OpenAIChatCompletionAdapterFactory.getAdapter(provider);
     if (reqBody.stream !== true) {
       const completion = await adapter.sendRequest(provider, reqBody, {
-        maxTokens: model.max_tokens,
+        maxTokens: c.var.model!.max_tokens,
       });
       return c.json(completion);
     }
 
     const s = adapter.sendRequestStreaming(provider, reqBody, {
-      maxTokens: model.max_tokens,
+      maxTokens: c.var.model!.max_tokens,
     });
     return streamSSE(c, async (stream) => {
       for await (const chunk of s) {
