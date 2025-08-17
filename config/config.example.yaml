@@ -18,6 +18,10 @@ providers:
     type: openai_woresp
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key: sk-google-api-key
+  fireworks:
+    type: fireworks
+    base_url: https://api.fireworks.ai/inference/v1
+    api_key: sk-fireworks-api-key
   openrouter:
     type: openai_woresp
     base_url: https://openrouter.ai/api/v1
@@ -45,6 +49,18 @@ models:
     providers:
       - provider: google
         model: gemini-2.5-flash
+  black-forest-labs/flux-1-schnell-fp8:
+    providers:
+      - provider: fireworks
+        model: accounts/fireworks/models/flux-1-schnell-fp8
+  black-forest-labs/flux-1-kontext-pro:
+    providers:
+      - provider: fireworks
+        model: accounts/fireworks/models/flux-kontext-pro
+  black-forest-labs/flux-1-kontext-max:
+    providers:
+      - provider: fireworks
+        model: accounts/fireworks/models/flux-kontext-max
   "*":
     providers:
       - provider: openrouter

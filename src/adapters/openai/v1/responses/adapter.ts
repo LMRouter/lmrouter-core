@@ -26,6 +26,7 @@ export abstract class OpenAIResponsesAdapter extends LMRouterAdapter<
 }
 
 const adapters: Record<string, new () => OpenAIResponsesAdapter> = {
+  fireworks: OpenAIResponsesOpenAIAdapter,
   openai: OpenAIResponsesOpenAIAdapter,
   others: OpenAIResponsesOthersAdapter,
 };
