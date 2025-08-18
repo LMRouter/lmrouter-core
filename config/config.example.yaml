@@ -15,7 +15,7 @@ providers:
     type: anthropic
     api_key: sk-anthropic-api-key
   google:
-    type: openai_woresp
+    type: google
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key: sk-google-api-key
   fireworks:
@@ -49,6 +49,14 @@ models:
     providers:
       - provider: google
         model: gemini-2.5-flash
+  google/imagen-4.0-generate-001:
+    providers:
+      - provider: google
+        model: imagen-4.0-generate-001
+  google/gemini-2.0-flash-preview-image-generation:
+    providers:
+      - provider: google
+        model: gemini-2.0-flash-preview-image-generation
   black-forest-labs/flux-1-schnell-fp8:
     providers:
       - provider: fireworks

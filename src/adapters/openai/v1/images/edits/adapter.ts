@@ -9,6 +9,7 @@ import type {
 
 import { LMRouterAdapter } from "../../../../adapter.js";
 import { OpenAIImageEditFireworksAdapter } from "./fireworks.js";
+import { OpenAIImageEditGoogleAdapter } from "./google.js";
 import { OpenAIImageEditOpenAIAdapter } from "./openai.js";
 import type { LMRouterCoreConfigProvider } from "../../../../../utils/config.js";
 
@@ -21,6 +22,7 @@ export type OpenAIImageEditAdapter = LMRouterAdapter<
 
 const adapters: Record<string, new () => OpenAIImageEditAdapter> = {
   fireworks: OpenAIImageEditFireworksAdapter,
+  google: OpenAIImageEditGoogleAdapter,
   others: OpenAIImageEditOpenAIAdapter,
 };
 

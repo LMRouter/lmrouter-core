@@ -13,7 +13,7 @@ providers:
     type: anthropic
     api_key: ""
   google:
-    type: openai_woresp
+    type: google
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key: ""
   perplexity:
