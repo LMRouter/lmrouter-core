@@ -15,7 +15,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "lmrouter": "dist/index.js"
+    "lmrouter": "./cli.js"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts config/config.yaml",
