@@ -26,7 +26,7 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings --tsconfig tsconfig.worker.json",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
-    "prepublishOnly": "npm run build && chmod +x dist/index.js"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.57.0",
