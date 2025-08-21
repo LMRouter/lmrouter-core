@@ -49,18 +49,28 @@ export const getConfig = (c?: Context): LMRouterConfig => {
     return configCache;
   }
 
-  if (c?.env.LMROUTER_CONFIG) {
+  const configFromEnv = c?.env.LMROUTER_CONFIG ?? process.env.LMROUTER_CONFIG;
+  if (configFromEnv) {
+    console.log("Loading config from env...");
     configCache = yaml.parse(
-      Buffer.from(c.env.LMROUTER_CONFIG, "base64").toString("utf8"),
+      Buffer.from(configFromEnv, "base64").toString("utf8"),
     ) as LMRouterConfig;
     return configCache;
   }
 
   if (process.argv.length < 3) {
-    console.error(`Usage: ${process.argv[0]} ${process.argv[1]} <config-file>`);
-    process.exit(1);
+    console.log("Loading default config...");
+    configCache = yaml.parse(
+      fs.readFileSync(
+        new URL("../../config/config.default.example.yaml", import.meta.url)
+          .pathname,
+        "utf8",
+      ),
+    ) as LMRouterConfig;
+    return configCache;
   }
 
+  console.log(`Loading config from file "${process.argv[2]}"...`);
   configCache = yaml.parse(
     fs.readFileSync(process.argv[2], "utf8"),
   ) as LMRouterConfig;
