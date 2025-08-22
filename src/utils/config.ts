@@ -14,6 +14,25 @@ export interface LMRouterConfigServer {
   logging: string;
 }
 
+export interface LMRouterConfigAuthDisabled {
+  enabled: false;
+}
+
+export interface LMRouterConfigAuthEnabled {
+  enabled: true;
+  database_url: string;
+  better_auth: {
+    secret: string;
+    url: string;
+    telemetry?: boolean;
+    trusted_origins?: string[];
+  };
+}
+
+export type LMRouterConfigAuth =
+  | LMRouterConfigAuthDisabled
+  | LMRouterConfigAuthEnabled;
+
 export type LMRouterConfigProviderType =
   | "openai"
   | "anthropic"
@@ -54,6 +73,7 @@ export interface LMRouterConfigModel {
 
 export interface LMRouterConfig {
   server: LMRouterConfigServer;
+  auth: LMRouterConfigAuth;
   access_keys: string[];
   providers: Record<string, LMRouterConfigProvider>;
   models: Record<string, LMRouterConfigModel>;

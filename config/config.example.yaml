@@ -3,6 +3,9 @@ server:
   port: 3000
   logging: dev
 
+auth:
+  enabled: false
+
 access_keys:
   - sk-example-key-1
   - sk-example-key-2

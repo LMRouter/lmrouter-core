@@ -15,7 +15,20 @@ import { getUptime } from "./utils/utils.js";
 const app = new Hono<ContextEnv>();
 
 app.use(logger());
-app.use(cors());
+app.use((c, next) => {
+  const cfg = getConfig(c);
+  if (!cfg.auth.enabled || !cfg.auth.better_auth.trusted_origins) {
+    return cors()(c, next);
+  }
+  return cors({
+    origin: cfg.auth.better_auth.trusted_origins,
+    allowHeaders: ["Content-Type", "Authorization"],
+    allowMethods: ["POST", "GET", "OPTIONS"],
+    exposeHeaders: ["Content-Length"],
+    maxAge: 600,
+    credentials: true,
+  })(c, next);
+});
 
 app.get("/", (c) => {
   return c.json({

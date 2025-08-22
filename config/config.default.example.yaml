@@ -3,6 +3,9 @@ server:
   port: 3000
   logging: prod
 
+auth:
+  enabled: false
+
 access_keys: []
 
 providers:
