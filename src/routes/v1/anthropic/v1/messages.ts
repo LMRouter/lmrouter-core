@@ -34,7 +34,7 @@ messagesRouter.post("/", async (c) => {
         {
           type: "api-call",
           data: {
-            apiKeyId:
+            api_key_id:
               c.var.auth?.type === "api-key" ? c.var.auth.apiKey.id : undefined,
             model: body.model,
             usage: adapter.usage,
@@ -61,7 +61,7 @@ messagesRouter.post("/", async (c) => {
         {
           type: "api-call",
           data: {
-            apiKeyId:
+            api_key_id:
               c.var.auth?.type === "api-key" ? c.var.auth.apiKey.id : undefined,
             model: body.model,
             usage: adapter.usage,

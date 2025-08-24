@@ -27,7 +27,7 @@ embeddingsRouter.post("/", async (c) => {
     await updateBilling(c, calculateCost(adapter.usage, providerCfg.pricing), {
       type: "api-call",
       data: {
-        apiKeyId:
+        api_key_id:
           c.var.auth?.type === "api-key" ? c.var.auth.apiKey.id : undefined,
         model: body.model,
         usage: adapter.usage,

@@ -74,7 +74,7 @@ export const updateBilling = async (
   await getDb(c)
     .update(balance)
     .set({
-      balance: sql`balance + (${amount})`,
+      balance: sql`balance + (${amount.toString()})`,
     })
     .where(and(eq(balance.ownerType, ownerType), eq(balance.ownerId, ownerId)));
 };

@@ -9,7 +9,7 @@ import type { LMRouterConfigModelProviderPricing } from "../utils/config.js";
 export interface LedgerMetadataApiCall {
   type: "api-call";
   data: {
-    apiKeyId?: string;
+    api_key_id?: string;
     model: string;
     usage?: LMRouterConfigModelProviderPricing;
     pricing?: LMRouterConfigModelProviderPricing;
