@@ -9,9 +9,14 @@ import type {
 } from "openai/resources/embeddings";
 
 import type { OpenAIEmbeddingsAdapter } from "./adapter.js";
-import type { LMRouterConfigProvider } from "../../../../utils/config.js";
+import type {
+  LMRouterConfigModelProviderPricing,
+  LMRouterConfigProvider,
+} from "../../../../utils/config.js";
 
 export class OpenAIEmbeddingsOpenAIAdapter implements OpenAIEmbeddingsAdapter {
+  usage?: LMRouterConfigModelProviderPricing;
+
   async sendRequest(
     provider: LMRouterConfigProvider,
     request: EmbeddingCreateParams,
@@ -26,6 +31,10 @@ export class OpenAIEmbeddingsOpenAIAdapter implements OpenAIEmbeddingsAdapter {
       },
     });
     const embeddings = await openai.embeddings.create(request);
+    this.usage = {
+      input: embeddings.usage.prompt_tokens,
+      request: 1,
+    };
     return embeddings;
   }
 

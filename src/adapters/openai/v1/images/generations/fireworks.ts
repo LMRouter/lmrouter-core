@@ -18,11 +18,16 @@ import type {
   FireworksImageGenerationGetFlux1KontextImageRequest,
   FireworksImageGenerationGetFlux1KontextImageResponse,
 } from "../../../../../types/fireworks.js";
-import type { LMRouterConfigProvider } from "../../../../../utils/config.js";
+import type {
+  LMRouterConfigModelProviderPricing,
+  LMRouterConfigProvider,
+} from "../../../../../utils/config.js";
 
 export class OpenAIImageGenerationFireworksAdapter
   implements OpenAIImageGenerationAdapter
 {
+  usage?: LMRouterConfigModelProviderPricing;
+
   async sendRequest(
     provider: LMRouterConfigProvider,
     request: ImageGenerateParamsBase,
@@ -73,6 +78,9 @@ export class OpenAIImageGenerationFireworksAdapter
       });
     }
 
+    this.usage = {
+      request: request.num_inference_steps,
+    };
     return await this.convertResponseFlux1SchnellFp8(response);
   }
 
@@ -141,6 +149,10 @@ export class OpenAIImageGenerationFireworksAdapter
       }
 
       if (getResultResponse.status === "Ready") {
+        this.usage = {
+          image: 1,
+          request: 1,
+        };
         return this.convertResponseFlux1Kontext(getResultResponse);
       }
 

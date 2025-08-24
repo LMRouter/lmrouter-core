@@ -16,9 +16,14 @@ import type {
 } from "openai/resources/images";
 
 import type { OpenAIImageEditAdapter } from "./adapter.js";
-import type { LMRouterConfigProvider } from "../../../../../utils/config.js";
+import type {
+  LMRouterConfigModelProviderPricing,
+  LMRouterConfigProvider,
+} from "../../../../../utils/config.js";
 
 export class OpenAIImageEditGoogleAdapter implements OpenAIImageEditAdapter {
+  usage?: LMRouterConfigModelProviderPricing;
+
   async sendRequest(
     provider: LMRouterConfigProvider,
     request: ImageEditParamsBase,
@@ -30,6 +35,18 @@ export class OpenAIImageEditGoogleAdapter implements OpenAIImageEditAdapter {
     const image = await ai.models.generateContent(
       await this.convertRequest(request),
     );
+    this.usage = {
+      input: image.usageMetadata?.promptTokenCount ?? 0,
+      output: image.usageMetadata?.candidatesTokenCount ?? 0,
+      image:
+        image.candidates?.filter(
+          (candidate) =>
+            candidate.content?.parts?.find(
+              (part) => part.inlineData !== undefined,
+            ) !== undefined,
+        ).length ?? 0,
+      request: 1,
+    };
     return this.convertResponse(image);
   }
 

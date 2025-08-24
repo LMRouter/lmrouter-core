@@ -10,9 +10,14 @@ import type {
 } from "openai/resources/images";
 
 import type { OpenAIImageEditAdapter } from "./adapter.js";
-import type { LMRouterConfigProvider } from "../../../../../utils/config.js";
+import type {
+  LMRouterConfigModelProviderPricing,
+  LMRouterConfigProvider,
+} from "../../../../../utils/config.js";
 
 export class OpenAIImageEditOpenAIAdapter implements OpenAIImageEditAdapter {
+  usage?: LMRouterConfigModelProviderPricing;
+
   getClient(provider: LMRouterConfigProvider): OpenAI {
     return new OpenAI({
       baseURL: provider.base_url,
@@ -31,6 +36,12 @@ export class OpenAIImageEditOpenAIAdapter implements OpenAIImageEditAdapter {
   ): Promise<ImagesResponse> {
     const openai = this.getClient(provider);
     const image = await openai.images.edit(request);
+    this.usage = {
+      input: (image as ImagesResponse).usage?.input_tokens ?? 0,
+      output: (image as ImagesResponse).usage?.output_tokens ?? 0,
+      image: (image as ImagesResponse).data?.length ?? 0,
+      request: 1,
+    };
     return image as ImagesResponse;
   }
 
@@ -41,6 +52,16 @@ export class OpenAIImageEditOpenAIAdapter implements OpenAIImageEditAdapter {
   ): AsyncGenerator<ImageEditStreamEvent> {
     const openai = this.getClient(provider);
     const stream = await openai.images.edit(request);
-    yield* stream as Stream<ImageEditStreamEvent>;
+    for await (const chunk of stream as Stream<ImageEditStreamEvent>) {
+      if (chunk.type === "image_edit.completed") {
+        this.usage = {
+          input: chunk.usage.input_tokens,
+          output: chunk.usage.output_tokens,
+          image: 1,
+          request: 1,
+        };
+        yield chunk;
+      }
+    }
   }
 }

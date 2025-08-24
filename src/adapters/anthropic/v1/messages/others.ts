@@ -26,11 +26,16 @@ import {
   type OpenAIChatCompletionAdapter,
   OpenAIChatCompletionAdapterFactory,
 } from "../../../openai/v1/chat/adapter.js";
-import type { LMRouterConfigProvider } from "../../../../utils/config.js";
+import type {
+  LMRouterConfigModelProviderPricing,
+  LMRouterConfigProvider,
+} from "../../../../utils/config.js";
 
 export class AnthropicMessagesOthersAdapter
   implements AnthropicMessagesAdapter
 {
+  usage?: LMRouterConfigModelProviderPricing;
+
   getAdapter(provider: LMRouterConfigProvider): OpenAIChatCompletionAdapter {
     return OpenAIChatCompletionAdapterFactory.getAdapter(provider);
   }
@@ -45,6 +50,7 @@ export class AnthropicMessagesOthersAdapter
       provider,
       this.convertRequest(request, options?.maxTokens),
     );
+    this.usage = adapter.usage;
     return this.convertResponse(response);
   }
 
@@ -59,6 +65,7 @@ export class AnthropicMessagesOthersAdapter
       this.convertRequest(request, options?.maxTokens),
     );
     yield* this.convertStream(stream);
+    this.usage = adapter.usage;
   }
 
   convertRequest(

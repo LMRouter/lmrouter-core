@@ -16,9 +16,14 @@ import type {
   FireworksImageGenerationGetFlux1KontextImageRequest,
   FireworksImageGenerationGetFlux1KontextImageResponse,
 } from "../../../../../types/fireworks.js";
-import type { LMRouterConfigProvider } from "../../../../../utils/config.js";
+import type {
+  LMRouterConfigModelProviderPricing,
+  LMRouterConfigProvider,
+} from "../../../../../utils/config.js";
 
 export class OpenAIImageEditFireworksAdapter implements OpenAIImageEditAdapter {
+  usage?: LMRouterConfigModelProviderPricing;
+
   async sendRequest(
     provider: LMRouterConfigProvider,
     request: ImageEditParamsBase,
@@ -85,6 +90,10 @@ export class OpenAIImageEditFireworksAdapter implements OpenAIImageEditAdapter {
       }
 
       if (getResultResponse.status === "Ready") {
+        this.usage = {
+          image: 1,
+          request: 1,
+        };
         return this.convertResponse(getResultResponse);
       }
 

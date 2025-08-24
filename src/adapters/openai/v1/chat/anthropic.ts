@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 LMRouter Contributors
 
-import Anthropic from "@anthropic-ai/sdk";
-import { Stream } from "@anthropic-ai/sdk/core/streaming";
 import type {
   ContentBlock,
   ImageBlockParam,
@@ -21,17 +19,22 @@ import type {
   OpenAIChatCompletionAdapter,
   OpenAIChatCompletionInputOptions,
 } from "./adapter.js";
-import type { LMRouterConfigProvider } from "../../../../utils/config.js";
+import {
+  AnthropicMessagesAdapterFactory,
+  type AnthropicMessagesAdapter,
+} from "../../../anthropic/v1/messages/adapter.js";
+import type {
+  LMRouterConfigModelProviderPricing,
+  LMRouterConfigProvider,
+} from "../../../../utils/config.js";
 
 export class OpenAIChatCompletionAnthropicAdapter
   implements OpenAIChatCompletionAdapter
 {
-  getClient(provider: LMRouterConfigProvider): Anthropic {
-    return new Anthropic({
-      baseURL: provider.base_url,
-      apiKey: provider.api_key,
-      timeout: 3600000,
-    });
+  usage?: LMRouterConfigModelProviderPricing;
+
+  getAdapter(provider: LMRouterConfigProvider): AnthropicMessagesAdapter {
+    return AnthropicMessagesAdapterFactory.getAdapter(provider);
   }
 
   async sendRequest(
@@ -39,10 +42,12 @@ export class OpenAIChatCompletionAnthropicAdapter
     request: ChatCompletionCreateParamsBase,
     options?: OpenAIChatCompletionInputOptions,
   ): Promise<ChatCompletion> {
-    const anthropic = this.getClient(provider);
-    const completion = await anthropic.messages.create(
+    const adaptor = this.getAdapter(provider);
+    const completion = await adaptor.sendRequest(
+      provider,
       this.convertRequest(request, options?.maxTokens),
     );
+    this.usage = adaptor.usage;
     return this.convertResponse(completion as Message);
   }
 
@@ -51,11 +56,13 @@ export class OpenAIChatCompletionAnthropicAdapter
     request: ChatCompletionCreateParamsBase,
     options?: OpenAIChatCompletionInputOptions,
   ): AsyncGenerator<ChatCompletionChunk> {
-    const anthropic = this.getClient(provider);
-    const stream = await anthropic.messages.create(
+    const adaptor = this.getAdapter(provider);
+    const stream = adaptor.sendRequestStreaming(
+      provider,
       this.convertRequest(request, options?.maxTokens),
     );
-    yield* this.convertStream(stream as Stream<RawMessageStreamEvent>);
+    yield* this.convertStream(stream);
+    this.usage = adaptor.usage;
   }
 
   convertRequest(
@@ -280,7 +287,7 @@ export class OpenAIChatCompletionAnthropicAdapter
   }
 
   async *convertStream(
-    stream: Stream<RawMessageStreamEvent>,
+    stream: AsyncGenerator<RawMessageStreamEvent>,
   ): AsyncGenerator<ChatCompletionChunk> {
     let messageStart: Message | null = null;
     let toolCallCount = 0;

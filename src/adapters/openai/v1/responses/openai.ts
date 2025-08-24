@@ -13,9 +13,13 @@ import type {
   OpenAIResponsesAdapter,
   OpenAIResponsesInputOptions,
 } from "./adapter.js";
-import type { LMRouterConfigProvider } from "../../../../utils/config.js";
+import type {
+  LMRouterConfigModelProviderPricing,
+  LMRouterConfigProvider,
+} from "../../../../utils/config.js";
 
 export class OpenAIResponsesOpenAIAdapter implements OpenAIResponsesAdapter {
+  usage?: LMRouterConfigModelProviderPricing;
   response?: Response;
 
   getClient(provider: LMRouterConfigProvider): OpenAI {
@@ -36,6 +40,13 @@ export class OpenAIResponsesOpenAIAdapter implements OpenAIResponsesAdapter {
   ): Promise<Response> {
     const openai = this.getClient(provider);
     const response = await openai.responses.create(request);
+    this.usage = {
+      input: (response as Response).usage?.input_tokens ?? 0,
+      output: (response as Response).usage?.output_tokens ?? 0,
+      request: 1,
+      input_cache_reads:
+        (response as Response).usage?.input_tokens_details.cached_tokens ?? 0,
+    };
     return response as Response;
   }
 
@@ -48,6 +59,13 @@ export class OpenAIResponsesOpenAIAdapter implements OpenAIResponsesAdapter {
     const stream = await openai.responses.create(request);
     for await (const chunk of stream as Stream<ResponseStreamEvent>) {
       if (chunk.type === "response.completed") {
+        this.usage = {
+          input: chunk.response.usage?.input_tokens ?? 0,
+          output: chunk.response.usage?.output_tokens ?? 0,
+          request: 1,
+          input_cache_reads:
+            chunk.response.usage?.input_tokens_details.cached_tokens ?? 0,
+        };
         this.response = chunk.response;
       }
       yield chunk;

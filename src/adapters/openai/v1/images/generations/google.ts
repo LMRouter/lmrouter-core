@@ -19,11 +19,16 @@ import type {
 } from "openai/resources/images";
 
 import type { OpenAIImageGenerationAdapter } from "./adapter.js";
-import type { LMRouterConfigProvider } from "../../../../../utils/config.js";
+import type {
+  LMRouterConfigModelProviderPricing,
+  LMRouterConfigProvider,
+} from "../../../../../utils/config.js";
 
 export class OpenAIImageGenerationGoogleAdapter
   implements OpenAIImageGenerationAdapter
 {
+  usage?: LMRouterConfigModelProviderPricing;
+
   getClient(provider: LMRouterConfigProvider): GoogleGenAI {
     return new GoogleGenAI({
       apiKey: provider.api_key,
@@ -59,6 +64,10 @@ export class OpenAIImageGenerationGoogleAdapter
     const image = await ai.models.generateImages(
       this.convertRequestImagen(request),
     );
+    this.usage = {
+      image: image.generatedImages?.length ?? 0,
+      request: 1,
+    };
     return this.convertResponseImagen(image);
   }
 
@@ -70,6 +79,18 @@ export class OpenAIImageGenerationGoogleAdapter
     const image = await ai.models.generateContent(
       this.convertRequestGemini(request),
     );
+    this.usage = {
+      input: image.usageMetadata?.promptTokenCount ?? 0,
+      output: image.usageMetadata?.candidatesTokenCount ?? 0,
+      image:
+        image.candidates?.filter(
+          (candidate) =>
+            candidate.content?.parts?.find(
+              (part) => part.inlineData !== undefined,
+            ) !== undefined,
+        ).length ?? 0,
+      request: 1,
+    };
     return this.convertResponseGemini(image);
   }
 
