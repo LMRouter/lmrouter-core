@@ -30,7 +30,7 @@ import type { LMRouterConfigProvider } from "../../../../utils/config.js";
 import { ResponsesStoreFactory } from "../../../../utils/responses-store.js";
 
 export class OpenAIResponsesOthersAdapter implements OpenAIResponsesAdapter {
-  response: Response | undefined;
+  response?: Response;
 
   getAdapter(provider: LMRouterConfigProvider): OpenAIChatCompletionAdapter {
     return OpenAIChatCompletionAdapterFactory.getAdapter(provider);

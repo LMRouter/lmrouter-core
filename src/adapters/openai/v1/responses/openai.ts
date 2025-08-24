@@ -16,7 +16,7 @@ import type {
 import type { LMRouterConfigProvider } from "../../../../utils/config.js";
 
 export class OpenAIResponsesOpenAIAdapter implements OpenAIResponsesAdapter {
-  response: Response | undefined;
+  response?: Response;
 
   getClient(provider: LMRouterConfigProvider): OpenAI {
     return new OpenAI({

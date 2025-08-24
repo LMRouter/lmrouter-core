@@ -8,6 +8,7 @@ import type { AuthBetterAuth, ContextEnv } from "../types/hono.js";
 import { getAuth } from "../utils/auth.js";
 import { getConfig } from "../utils/config.js";
 import anthropicRouter from "./v1/anthropic.js";
+import apiKeysRouter from "./v1/api-keys.js";
 import openaiRouter from "./v1/openai.js";
 
 const v1Router = new Hono<ContextEnv>();
@@ -28,6 +29,8 @@ v1Router.on(["GET", "POST"], "/auth/**", (c) => {
   }
   return getAuth(c).handler(c.req.raw);
 });
+
+v1Router.route("/api-keys", apiKeysRouter);
 
 v1Router.route("/openai", openaiRouter);
 

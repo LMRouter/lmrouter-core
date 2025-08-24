@@ -4,10 +4,24 @@
 import { sql } from "drizzle-orm";
 import { jsonb, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-export interface LedgerMetadata {
-  type: string;
+import type { LMRouterConfigModelProviderPricing } from "../utils/config.js";
+
+export interface LedgerMetadataApiCall {
+  type: "api-call";
+  data: {
+    apiKeyId: string;
+    model: string;
+    usage?: LMRouterConfigModelProviderPricing;
+    pricing?: LMRouterConfigModelProviderPricing;
+  };
+}
+
+export interface LedgerMetadataPayment {
+  type: "payment";
   data: Record<string, unknown>;
 }
+
+export type LedgerMetadata = LedgerMetadataApiCall | LedgerMetadataPayment;
 
 export const apiKey = pgTable("api_key", {
   id: text("id")

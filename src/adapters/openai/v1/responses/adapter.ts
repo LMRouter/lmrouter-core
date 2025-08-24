@@ -22,7 +22,7 @@ export abstract class OpenAIResponsesAdapter extends LMRouterAdapter<
   Response,
   ResponseStreamEvent
 > {
-  response: Response | undefined;
+  response?: Response;
 }
 
 const adapters: Record<string, new () => OpenAIResponsesAdapter> = {
