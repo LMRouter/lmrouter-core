@@ -65,20 +65,16 @@ export const updateBilling = async (
       ? c.var.auth.apiKey.ownerId
       : c.var.auth.user.id;
 
-  await getDb(c).transaction(async (tx) => {
-    await tx.insert(ledger).values({
-      ownerType,
-      ownerId,
-      amount: amount.toString(),
-      metadata,
-    });
-    await tx
-      .update(balance)
-      .set({
-        balance: sql`balance + (${amount})`,
-      })
-      .where(
-        and(eq(balance.ownerType, ownerType), eq(balance.ownerId, ownerId)),
-      );
+  await getDb(c).insert(ledger).values({
+    ownerType,
+    ownerId,
+    amount: amount.toString(),
+    metadata,
   });
+  await getDb(c)
+    .update(balance)
+    .set({
+      balance: sql`balance + (${amount})`,
+    })
+    .where(and(eq(balance.ownerType, ownerType), eq(balance.ownerId, ownerId)));
 };
