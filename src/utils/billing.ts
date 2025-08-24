@@ -41,7 +41,7 @@ export const calculateCost = (
       .dividedBy(1000000),
   );
 
-  return cost;
+  return cost.neg();
 };
 
 export const updateBilling = async (
