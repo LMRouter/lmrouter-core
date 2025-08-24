@@ -10,6 +10,7 @@ import { requireAuth } from "../../../../middlewares/auth.js";
 import { ensureBalance } from "../../../../middlewares/billing.js";
 import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
+import { calculateCost, updateBilling } from "../../../../utils/billing.js";
 import { ResponsesStoreFactory } from "../../../../utils/responses-store.js";
 import { iterateModelProviders } from "../../../../utils/utils.js";
 
@@ -31,6 +32,20 @@ responsesRouter.post("/", async (c) => {
       if (reqBody.store !== false) {
         await ResponsesStoreFactory.getStore().set(reqBody, response);
       }
+      await updateBilling(
+        c,
+        calculateCost(adapter.usage, providerCfg.pricing),
+        {
+          type: "api-call",
+          data: {
+            apiKeyId:
+              c.var.auth?.type === "api-key" ? c.var.auth.apiKey.id : undefined,
+            model: body.model,
+            usage: adapter.usage,
+            pricing: providerCfg.pricing,
+          },
+        },
+      );
       return c.json(response);
     }
 
@@ -47,6 +62,20 @@ responsesRouter.post("/", async (c) => {
       if (reqBody.store !== false && adapter.response) {
         await ResponsesStoreFactory.getStore().set(reqBody, adapter.response);
       }
+      await updateBilling(
+        c,
+        calculateCost(adapter.usage, providerCfg.pricing),
+        {
+          type: "api-call",
+          data: {
+            apiKeyId:
+              c.var.auth?.type === "api-key" ? c.var.auth.apiKey.id : undefined,
+            model: body.model,
+            usage: adapter.usage,
+            pricing: providerCfg.pricing,
+          },
+        },
+      );
     });
   });
 });

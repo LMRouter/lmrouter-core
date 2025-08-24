@@ -14,6 +14,7 @@ import { requireAuth } from "../../../../middlewares/auth.js";
 import { ensureBalance } from "../../../../middlewares/billing.js";
 import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
+import { calculateCost, updateBilling } from "../../../../utils/billing.js";
 import { iterateModelProviders } from "../../../../utils/utils.js";
 
 const imagesRouter = new Hono<ContextEnv>();
@@ -29,6 +30,20 @@ imagesRouter.post("/generations", async (c) => {
     const adapter = OpenAIImageGenerationAdapterFactory.getAdapter(provider);
     if (reqBody.stream !== true) {
       const image = await adapter.sendRequest(provider, reqBody);
+      await updateBilling(
+        c,
+        calculateCost(adapter.usage, providerCfg.pricing),
+        {
+          type: "api-call",
+          data: {
+            apiKeyId:
+              c.var.auth?.type === "api-key" ? c.var.auth.apiKey.id : undefined,
+            model: body.model,
+            usage: adapter.usage,
+            pricing: providerCfg.pricing,
+          },
+        },
+      );
       return c.json(image);
     }
 
@@ -39,6 +54,22 @@ imagesRouter.post("/generations", async (c) => {
           event: chunk.type,
           data: JSON.stringify(chunk),
         });
+        await updateBilling(
+          c,
+          calculateCost(adapter.usage, providerCfg.pricing),
+          {
+            type: "api-call",
+            data: {
+              apiKeyId:
+                c.var.auth?.type === "api-key"
+                  ? c.var.auth.apiKey.id
+                  : undefined,
+              model: body.model,
+              usage: adapter.usage,
+              pricing: providerCfg.pricing,
+            },
+          },
+        );
       }
     });
   });
@@ -65,6 +96,20 @@ imagesRouter.post("/edits", async (c) => {
     const adapter = OpenAIImageEditAdapterFactory.getAdapter(provider);
     if (reqBody.stream !== true) {
       const image = await adapter.sendRequest(provider, reqBody);
+      await updateBilling(
+        c,
+        calculateCost(adapter.usage, providerCfg.pricing),
+        {
+          type: "api-call",
+          data: {
+            apiKeyId:
+              c.var.auth?.type === "api-key" ? c.var.auth.apiKey.id : undefined,
+            model: body.model,
+            usage: adapter.usage,
+            pricing: providerCfg.pricing,
+          },
+        },
+      );
       return c.json(image);
     }
 
@@ -75,6 +120,22 @@ imagesRouter.post("/edits", async (c) => {
           event: chunk.type,
           data: JSON.stringify(chunk),
         });
+        await updateBilling(
+          c,
+          calculateCost(adapter.usage, providerCfg.pricing),
+          {
+            type: "api-call",
+            data: {
+              apiKeyId:
+                c.var.auth?.type === "api-key"
+                  ? c.var.auth.apiKey.id
+                  : undefined,
+              model: body.model,
+              usage: adapter.usage,
+              pricing: providerCfg.pricing,
+            },
+          },
+        );
       }
     });
   });

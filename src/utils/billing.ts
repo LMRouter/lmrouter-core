@@ -46,14 +46,24 @@ export const calculateCost = (
 
 export const updateBilling = async (
   c: Context<ContextEnv>,
-  ownerType: string,
-  ownerId: string,
   amount: Decimal,
   metadata: LedgerMetadata,
 ) => {
-  if (!getConfig(c).auth.enabled) {
+  if (
+    !getConfig(c).auth.enabled ||
+    !c.var.auth ||
+    c.var.auth.type === "access-key" ||
+    c.var.auth.type === "byok"
+  ) {
     return;
   }
+
+  const ownerType =
+    c.var.auth.type === "api-key" ? c.var.auth.apiKey.ownerType : "user";
+  const ownerId =
+    c.var.auth.type === "api-key"
+      ? c.var.auth.apiKey.ownerId
+      : c.var.auth.user.id;
 
   await getDb(c).transaction(async (tx) => {
     await tx.insert(ledger).values({
