@@ -6,6 +6,8 @@ import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 
 import { getConfig } from "./config.js";
+import * as authSchema from "../models/auth.js";
+import * as billingSchema from "../models/billing.js";
 import type { ContextEnv } from "../types/hono.js";
 
 let dbCache: ReturnType<typeof drizzle> | null = null;
@@ -18,7 +20,12 @@ export const getDb = (c?: Context<ContextEnv>): ReturnType<typeof drizzle> => {
         message: "Auth is not enabled",
       });
     }
-    dbCache = drizzle(cfg.auth.database_url);
+    dbCache = drizzle(cfg.auth.database_url, {
+      schema: {
+        ...authSchema,
+        ...billingSchema,
+      },
+    });
   }
   return dbCache;
 };

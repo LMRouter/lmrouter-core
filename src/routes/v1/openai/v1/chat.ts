@@ -7,13 +7,14 @@ import type { ChatCompletionCreateParamsBase } from "openai/resources/chat/compl
 
 import { OpenAIChatCompletionAdapterFactory } from "../../../../adapters/openai/v1/chat/adapter.js";
 import { requireAuth } from "../../../../middlewares/auth.js";
+import { ensureBalance } from "../../../../middlewares/billing.js";
 import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
 import { iterateModelProviders } from "../../../../utils/utils.js";
 
 const chatRouter = new Hono<ContextEnv>();
 
-chatRouter.use(requireAuth(), parseModel);
+chatRouter.use(requireAuth(), ensureBalance, parseModel);
 
 chatRouter.post("/completions", async (c) => {
   const body = await c.req.json();

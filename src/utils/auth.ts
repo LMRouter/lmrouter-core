@@ -8,7 +8,7 @@ import { HTTPException } from "hono/http-exception";
 
 import { getConfig } from "./config.js";
 import { getDb } from "./database.js";
-import { account, session, user, verification } from "../models/auth.js";
+import { balance } from "../models/billing.js";
 import type { ContextEnv } from "../types/hono.js";
 
 let authCache: ReturnType<typeof betterAuth> | null = null;
@@ -33,15 +33,21 @@ export const getAuth = (
       },
       database: drizzleAdapter(getDb(c), {
         provider: "pg",
-        schema: {
-          account,
-          session,
-          user,
-          verification,
-        },
       }),
       emailAndPassword: {
         enabled: true,
+      },
+      databaseHooks: {
+        user: {
+          create: {
+            after: async (user) => {
+              await getDb(c).insert(balance).values({
+                ownerType: "user",
+                ownerId: user.id,
+              });
+            },
+          },
+        },
       },
     });
   }

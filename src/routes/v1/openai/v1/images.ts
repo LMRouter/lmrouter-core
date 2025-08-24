@@ -11,13 +11,14 @@ import type {
 import { OpenAIImageEditAdapterFactory } from "../../../../adapters/openai/v1/images/edits/adapter.js";
 import { OpenAIImageGenerationAdapterFactory } from "../../../../adapters/openai/v1/images/generations/adapter.js";
 import { requireAuth } from "../../../../middlewares/auth.js";
+import { ensureBalance } from "../../../../middlewares/billing.js";
 import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
 import { iterateModelProviders } from "../../../../utils/utils.js";
 
 const imagesRouter = new Hono<ContextEnv>();
 
-imagesRouter.use(requireAuth(), parseModel);
+imagesRouter.use(requireAuth(), ensureBalance, parseModel);
 
 imagesRouter.post("/generations", async (c) => {
   const body = await c.req.json();

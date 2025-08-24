@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 LMRouter Contributors
 
+import { eq } from "drizzle-orm";
 import { createMiddleware } from "hono/factory";
 
+import { apiKey as apiKeyModel } from "../models/billing.js";
 import type { AuthType, ContextEnv } from "../types/hono.js";
+import { hashApiKey } from "../utils/api-key.js";
 import { getAuth } from "../utils/auth.js";
 import { getConfig } from "../utils/config.js";
+import { getDb } from "../utils/database.js";
 
 export const auth = createMiddleware<ContextEnv>(async (c, next) => {
   const cfg = getConfig(c);
@@ -28,6 +32,21 @@ export const auth = createMiddleware<ContextEnv>(async (c, next) => {
       });
       await next();
       return;
+    }
+
+    if (cfg.auth.enabled) {
+      const apiKeyRow = await getDb(c)
+        .select()
+        .from(apiKeyModel)
+        .where(eq(apiKeyModel.keyHash, hashApiKey(apiKey)));
+      if (apiKeyRow.length === 1) {
+        c.set("auth", {
+          type: "api-key",
+          apiKey: apiKeyRow[0],
+        });
+        await next();
+        return;
+      }
     }
   }
 

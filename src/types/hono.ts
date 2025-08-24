@@ -3,6 +3,7 @@
 
 import type { Session, User } from "better-auth";
 
+import { apiKey } from "../models/billing.js";
 import type { LMRouterConfigModel } from "../utils/config.js";
 
 export type AuthType = "better-auth" | "api-key" | "access-key" | "byok";
@@ -15,9 +16,7 @@ export interface AuthBetterAuth {
 
 export interface AuthApiKey {
   type: "api-key";
-  apiKey: string;
-  user: User;
-  session: Session;
+  apiKey: typeof apiKey.$inferSelect;
 }
 
 export interface AuthAccessKey {

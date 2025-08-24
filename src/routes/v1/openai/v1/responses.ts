@@ -7,6 +7,7 @@ import type { ResponseCreateParamsBase } from "openai/resources/responses/respon
 
 import { OpenAIResponsesAdapterFactory } from "../../../../adapters/openai/v1/responses/adapter.js";
 import { requireAuth } from "../../../../middlewares/auth.js";
+import { ensureBalance } from "../../../../middlewares/billing.js";
 import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
 import { ResponsesStoreFactory } from "../../../../utils/responses-store.js";
@@ -14,7 +15,7 @@ import { iterateModelProviders } from "../../../../utils/utils.js";
 
 const responsesRouter = new Hono<ContextEnv>();
 
-responsesRouter.use(requireAuth(), parseModel);
+responsesRouter.use(requireAuth(), ensureBalance, parseModel);
 
 responsesRouter.post("/", async (c) => {
   const body = await c.req.json();
