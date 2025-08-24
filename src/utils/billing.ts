@@ -49,12 +49,17 @@ export const updateBilling = async (
   amount: Decimal,
   metadata: LedgerMetadata,
 ) => {
-  if (
-    !getConfig(c).auth.enabled ||
-    !c.var.auth ||
-    c.var.auth.type === "access-key" ||
-    c.var.auth.type === "byok"
-  ) {
+  if (!getConfig(c).auth.enabled || !c.var.auth) {
+    return;
+  }
+
+  if (c.var.auth.type === "access-key" || c.var.auth.type === "byok") {
+    await getDb(c).insert(ledger).values({
+      ownerType: c.var.auth.type,
+      ownerId: "",
+      amount: amount.toString(),
+      metadata,
+    });
     return;
   }
 
