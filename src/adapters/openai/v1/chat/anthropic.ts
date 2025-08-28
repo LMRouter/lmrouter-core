@@ -117,12 +117,14 @@ export class OpenAIChatCompletionAnthropicAdapter
                     ]
                   : []) as ContentBlock[]
               ).concat(
-                message.tool_calls.map((toolCall) => ({
-                  type: "tool_use" as const,
-                  id: toolCall.id,
-                  name: toolCall.function.name,
-                  input: JSON.parse(toolCall.function.arguments),
-                })),
+                message.tool_calls
+                  .filter((toolCall) => toolCall.type === "function")
+                  .map((toolCall) => ({
+                    type: "tool_use" as const,
+                    id: toolCall.id,
+                    name: toolCall.function.name,
+                    input: JSON.parse(toolCall.function.arguments),
+                  })),
               ),
             };
           }
@@ -206,18 +208,28 @@ export class OpenAIChatCompletionAnthropicAdapter
                   type: "any",
                   disable_parallel_tool_use: disableParallelToolUse,
                 }
-              : request.tool_choice !== undefined
+              : request.tool_choice?.type === "function"
                 ? {
                     type: "tool",
                     name: request.tool_choice.function.name,
                     disable_parallel_tool_use: disableParallelToolUse,
                   }
-                : undefined,
-      tools: request.tools?.map((tool) => ({
-        name: tool.function.name,
-        description: tool.function.description,
-        input_schema: tool.function.parameters as Tool.InputSchema,
-      })),
+                : request.tool_choice?.type === "allowed_tools"
+                  ? {
+                      type:
+                        request.tool_choice.allowed_tools.mode === "auto"
+                          ? "auto"
+                          : "any",
+                      disable_parallel_tool_use: disableParallelToolUse,
+                    }
+                  : undefined,
+      tools: request.tools
+        ?.filter((tool) => tool.type === "function")
+        .map((tool) => ({
+          name: tool.function.name,
+          description: tool.function.description,
+          input_schema: tool.function.parameters as Tool.InputSchema,
+        })),
       top_p: request.top_p ?? undefined,
     };
   }

@@ -234,12 +234,14 @@ export class AnthropicMessagesOthersAdapter
             ]
           : []) as ContentBlock[]
       ).concat(
-        response.choices[0].message.tool_calls?.map((toolCall) => ({
-          type: "tool_use" as const,
-          id: toolCall.id,
-          name: toolCall.function.name,
-          input: JSON.parse(toolCall.function.arguments),
-        })) ?? [],
+        response.choices[0].message.tool_calls
+          ?.filter((toolCall) => toolCall.type === "function")
+          .map((toolCall) => ({
+            type: "tool_use" as const,
+            id: toolCall.id,
+            name: toolCall.function.name,
+            input: JSON.parse(toolCall.function.arguments),
+          })) ?? [],
       ),
       model: response.model,
       role: "assistant" as const,

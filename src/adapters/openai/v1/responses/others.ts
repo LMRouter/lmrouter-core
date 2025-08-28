@@ -328,14 +328,16 @@ export class OpenAIResponsesOthersAdapter implements OpenAIResponsesAdapter {
             ]
           : []) as ResponseOutputItem[]
       ).concat(
-        response.choices[0].message.tool_calls?.map((toolCall) => ({
-          type: "function_call" as const,
-          call_id: toolCall.id,
-          name: toolCall.function.name,
-          arguments: toolCall.function.arguments,
-          id: response.id,
-          status: "completed" as const,
-        })) ?? [],
+        response.choices[0].message.tool_calls
+          ?.filter((toolCall) => toolCall.type === "function")
+          .map((toolCall) => ({
+            type: "function_call" as const,
+            call_id: toolCall.id,
+            name: toolCall.function.name,
+            arguments: toolCall.function.arguments,
+            id: response.id,
+            status: "completed" as const,
+          })) ?? [],
       ),
       parallel_tool_calls: request.parallel_tool_calls ?? true,
       temperature: request.temperature ?? null,
