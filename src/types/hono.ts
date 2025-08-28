@@ -12,6 +12,8 @@ export interface AuthBetterAuth {
   type: "better-auth";
   user: User;
   session: Session;
+  ownerType: string;
+  ownerId: string;
 }
 
 export interface AuthApiKey {

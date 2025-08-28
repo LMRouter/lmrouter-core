@@ -28,7 +28,12 @@ apiKeysRouter.get("/", async (c) => {
       created_at: apiKey.createdAt,
     })
     .from(apiKey)
-    .where(and(eq(apiKey.ownerType, "user"), eq(apiKey.ownerId, auth.user.id)));
+    .where(
+      and(
+        eq(apiKey.ownerType, auth.ownerType),
+        eq(apiKey.ownerId, auth.ownerId),
+      ),
+    );
 
   return c.json({
     keys,
@@ -46,8 +51,8 @@ apiKeysRouter.post("/", async (c) => {
   await getDb(c)
     .insert(apiKey)
     .values({
-      ownerType: "user",
-      ownerId: auth.user.id,
+      ownerType: auth.ownerType,
+      ownerId: auth.ownerId,
       name,
       keyHash: hashApiKey(key),
       keyPrefix: getApiKeyPrefix(key),
@@ -68,8 +73,8 @@ apiKeysRouter.patch("/:id", async (c) => {
     .where(
       and(
         eq(apiKey.id, id),
-        eq(apiKey.ownerType, "user"),
-        eq(apiKey.ownerId, auth.user.id),
+        eq(apiKey.ownerType, auth.ownerType),
+        eq(apiKey.ownerId, auth.ownerId),
       ),
     );
   if (key.length === 0) {
@@ -90,8 +95,8 @@ apiKeysRouter.delete("/:id", async (c) => {
     .where(
       and(
         eq(apiKey.id, id),
-        eq(apiKey.ownerType, "user"),
-        eq(apiKey.ownerId, auth.user.id),
+        eq(apiKey.ownerType, auth.ownerType),
+        eq(apiKey.ownerId, auth.ownerId),
       ),
     );
   if (key.length === 0) {

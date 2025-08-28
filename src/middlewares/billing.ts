@@ -27,39 +27,22 @@ export const ensureBalance = createMiddleware<ContextEnv>(async (c, next) => {
     return;
   }
 
-  if (auth.type === "better-auth") {
-    const res = await getDb(c)
-      .select({
-        balance: balance.balance,
-      })
-      .from(balance)
-      .where(
-        and(eq(balance.ownerType, "user"), eq(balance.ownerId, auth.user.id)),
-      );
-    if (res.length !== 1) {
-      return c.json({ error: { message: "Internal server error" } }, 500);
-    }
-    if (new Decimal(res[0].balance).lessThanOrEqualTo(0)) {
-      return c.json({ error: { message: "Insufficient balance" } }, 402);
-    }
-  } else if (auth.type === "api-key") {
-    const res = await getDb(c)
-      .select({
-        balance: balance.balance,
-      })
-      .from(balance)
-      .where(
-        and(
-          eq(balance.ownerType, auth.apiKey.ownerType),
-          eq(balance.ownerId, auth.apiKey.ownerId),
-        ),
-      );
-    if (res.length !== 1) {
-      return c.json({ error: { message: "Internal server error" } }, 500);
-    }
-    if (new Decimal(res[0].balance).lessThanOrEqualTo(0)) {
-      return c.json({ error: { message: "Insufficient balance" } }, 402);
-    }
+  const ownerType =
+    auth.type === "better-auth" ? auth.ownerType : auth.apiKey.ownerType;
+  const ownerId =
+    auth.type === "better-auth" ? auth.ownerId : auth.apiKey.ownerId;
+
+  const res = await getDb(c)
+    .select({
+      balance: balance.balance,
+    })
+    .from(balance)
+    .where(and(eq(balance.ownerType, ownerType), eq(balance.ownerId, ownerId)));
+  if (res.length !== 1) {
+    return c.json({ error: { message: "Internal server error" } }, 500);
+  }
+  if (new Decimal(res[0].balance).lessThanOrEqualTo(0)) {
+    return c.json({ error: { message: "Insufficient balance" } }, 402);
   }
 
   await next();

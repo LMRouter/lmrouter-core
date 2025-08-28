@@ -121,13 +121,13 @@ export const recordApiCall = async (
 
   const ownerType =
     c.var.auth.type === "better-auth"
-      ? "user"
+      ? c.var.auth.ownerType
       : c.var.auth.type === "api-key"
         ? c.var.auth.apiKey.ownerType
         : c.var.auth.type;
   const ownerId =
     c.var.auth.type === "better-auth"
-      ? c.var.auth.user.id
+      ? c.var.auth.ownerId
       : c.var.auth.type === "api-key"
         ? c.var.auth.apiKey.ownerId
         : "";

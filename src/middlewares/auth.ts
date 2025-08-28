@@ -59,6 +59,8 @@ export const auth = createMiddleware<ContextEnv>(async (c, next) => {
         type: "better-auth",
         user: session.user,
         session: session.session,
+        ownerType: "user",
+        ownerId: session.user.id,
       });
       await next();
       return;
