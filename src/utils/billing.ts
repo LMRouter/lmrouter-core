@@ -79,7 +79,7 @@ export const calculateCost = (
         .mul(pricing.input_cache_writes ?? 0)
         .dividedBy(1000000),
     );
-    return cost.neg();
+    return cost;
   } else if (pricing.type === "tiered") {
     for (const tier of pricing.tiers) {
       if (!tier.predicate) {
@@ -98,32 +98,56 @@ export const calculateCost = (
   });
 };
 
-export const updateBilling = async (
+export const recordApiCall = async (
   c: Context<ContextEnv>,
-  amount: Decimal,
-  metadata: LedgerMetadata,
+  usage?: LMRouterApiCallUsage,
+  pricing?: LMRouterConfigModelProviderPricing,
 ) => {
   if (!getConfig(c).auth.enabled || !c.var.auth) {
     return;
   }
 
-  if (c.var.auth.type === "access-key" || c.var.auth.type === "byok") {
-    await getDb(c).insert(ledger).values({
-      ownerType: c.var.auth.type,
-      ownerId: "",
-      amount: amount.toString(),
-      metadata,
-    });
-    return;
-  }
+  const metadata: LedgerMetadata = {
+    type: "api-call",
+    data: {
+      api_key_id:
+        c.var.auth.type === "api-key" ? c.var.auth.apiKey.id : undefined,
+      model: c.var.modelName ?? "",
+      endpoint: c.req.path,
+      usage,
+      pricing,
+    },
+  };
 
   const ownerType =
-    c.var.auth.type === "api-key" ? c.var.auth.apiKey.ownerType : "user";
+    c.var.auth.type === "better-auth"
+      ? "user"
+      : c.var.auth.type === "api-key"
+        ? c.var.auth.apiKey.ownerType
+        : c.var.auth.type;
   const ownerId =
-    c.var.auth.type === "api-key"
-      ? c.var.auth.apiKey.ownerId
-      : c.var.auth.user.id;
+    c.var.auth.type === "better-auth"
+      ? c.var.auth.user.id
+      : c.var.auth.type === "api-key"
+        ? c.var.auth.apiKey.ownerId
+        : "";
 
+  await updateBilling(
+    ownerType,
+    ownerId,
+    calculateCost(usage, pricing).neg(),
+    metadata,
+    c,
+  );
+};
+
+export const updateBilling = async (
+  ownerType: string,
+  ownerId: string,
+  amount: Decimal,
+  metadata: LedgerMetadata,
+  c?: Context<ContextEnv>,
+) => {
   await getDb(c).insert(ledger).values({
     ownerType,
     ownerId,

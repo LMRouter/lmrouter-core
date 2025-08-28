@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 LMRouter Contributors
 
-import { betterAuth } from "better-auth";
+import { betterAuth, type BetterAuthPlugin } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { stripe } from "@better-auth/stripe";
 import type { Context } from "hono";
@@ -53,11 +53,12 @@ export const getAuth = (
         },
       },
       plugins: [
+        // TODO: Remove type cast when better-auth fixes the type
         stripe({
           stripeClient: stripeClient.stripe,
           stripeWebhookSecret: stripeClient.billingConfig.stripe.webhook_secret,
           createCustomerOnSignUp: true,
-        }),
+        }) as BetterAuthPlugin,
       ],
     });
   }

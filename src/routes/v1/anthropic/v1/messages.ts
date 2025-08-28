@@ -10,7 +10,7 @@ import { requireAuth } from "../../../../middlewares/auth.js";
 import { ensureBalance } from "../../../../middlewares/billing.js";
 import { parseModel } from "../../../../middlewares/model.js";
 import type { ContextEnv } from "../../../../types/hono.js";
-import { calculateCost, updateBilling } from "../../../../utils/billing.js";
+import { recordApiCall } from "../../../../utils/billing.js";
 import { iterateModelProviders } from "../../../../utils/utils.js";
 
 const messagesRouter = new Hono<ContextEnv>();
@@ -28,21 +28,7 @@ messagesRouter.post("/", async (c) => {
       const completion = await adapter.sendRequest(provider, reqBody, {
         maxTokens: providerCfg.max_tokens,
       });
-      await updateBilling(
-        c,
-        calculateCost(adapter.usage, providerCfg.pricing),
-        {
-          type: "api-call",
-          data: {
-            api_key_id:
-              c.var.auth?.type === "api-key" ? c.var.auth.apiKey.id : undefined,
-            model: body.model,
-            endpoint: c.req.path,
-            usage: adapter.usage,
-            pricing: providerCfg.pricing,
-          },
-        },
-      );
+      await recordApiCall(c, adapter.usage, providerCfg.pricing);
       return c.json(completion);
     }
 
@@ -56,21 +42,7 @@ messagesRouter.post("/", async (c) => {
           data: JSON.stringify(chunk),
         });
       }
-      await updateBilling(
-        c,
-        calculateCost(adapter.usage, providerCfg.pricing),
-        {
-          type: "api-call",
-          data: {
-            api_key_id:
-              c.var.auth?.type === "api-key" ? c.var.auth.apiKey.id : undefined,
-            model: body.model,
-            endpoint: c.req.path,
-            usage: adapter.usage,
-            pricing: providerCfg.pricing,
-          },
-        },
-      );
+      await recordApiCall(c, adapter.usage, providerCfg.pricing);
     });
   });
 });

@@ -32,6 +32,7 @@ export interface AuthByok {
 export type ContextEnv = {
   Variables: {
     auth?: AuthBetterAuth | AuthApiKey | AuthAccessKey | AuthByok;
+    modelName?: string;
     model?: LMRouterConfigModel;
   };
   Bindings: {

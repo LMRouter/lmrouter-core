@@ -39,6 +39,7 @@ export const parseModel = createMiddleware<ContextEnv>(async (c, next) => {
       404,
     );
   }
+  c.set("modelName", body.model);
   c.set("model", model);
 
   await next();
