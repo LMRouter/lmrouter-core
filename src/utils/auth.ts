@@ -3,12 +3,14 @@
 
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { stripe } from "@better-auth/stripe";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 
 import { getConfig } from "./config.js";
 import { getDb } from "./database.js";
 import { balance } from "../models/billing.js";
+import { getStripe } from "./stripe.js";
 import type { ContextEnv } from "../types/hono.js";
 
 let authCache: ReturnType<typeof betterAuth> | null = null;
@@ -23,6 +25,7 @@ export const getAuth = (
         message: "Auth is not enabled",
       });
     }
+    const stripeClient = getStripe(c);
     authCache = betterAuth({
       baseURL: cfg.auth.better_auth.url,
       basePath: "/v1/auth",
@@ -49,6 +52,13 @@ export const getAuth = (
           },
         },
       },
+      plugins: [
+        stripe({
+          stripeClient: stripeClient.stripe,
+          stripeWebhookSecret: stripeClient.webhookSecret,
+          createCustomerOnSignUp: true,
+        }),
+      ],
     });
   }
   return authCache;

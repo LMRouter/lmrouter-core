@@ -28,6 +28,13 @@ export interface LMRouterConfigAuthEnabled {
     telemetry?: boolean;
     trusted_origins?: string[];
   };
+  billing: {
+    stripe: {
+      secret_key: string;
+      webhook_secret: string;
+      lmrouter_credits_product_id: string;
+    };
+  };
 }
 
 export type LMRouterConfigAuth =
