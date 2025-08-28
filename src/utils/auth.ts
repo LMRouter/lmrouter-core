@@ -54,13 +54,12 @@ export const getAuth = (
         },
       },
       plugins: [
-        // TODO: Remove type cast when better-auth fixes the type
         stripe({
           stripeClient: stripeClient.stripe,
           stripeWebhookSecret: stripeClient.billingConfig.stripe.webhook_secret,
           createCustomerOnSignUp: true,
           onEvent: handleStripeWebhook,
-        }) as BetterAuthPlugin,
+        }),
       ],
     });
   }
