@@ -6,6 +6,7 @@ import { and, eq, sql } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import jsonLogic from "json-logic-js";
+import { Stripe } from "stripe";
 
 import {
   getConfig,
@@ -141,6 +142,30 @@ export const recordApiCall = async (
     metadata,
     c,
   );
+};
+
+export const handleStripeWebhook = async (event: Stripe.Event) => {
+  if (event.type !== "checkout.session.completed") {
+    return;
+  }
+
+  const data = event.data.object;
+  if (!data.metadata) {
+    return;
+  }
+
+  const { owner_type, owner_id, amount } = data.metadata;
+  if (!owner_type || !owner_id || !amount) {
+    return;
+  }
+
+  await updateBilling(owner_type, owner_id, new Decimal(amount), {
+    type: "payment",
+    data: {
+      provider: "stripe",
+      session: data,
+    },
+  });
 };
 
 export const updateBilling = async (

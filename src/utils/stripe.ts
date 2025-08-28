@@ -103,6 +103,11 @@ class StripeClient {
       ],
       mode: "payment",
       success_url: successUrl,
+      metadata: {
+        owner_type: auth.ownerType,
+        owner_id: auth.ownerId,
+        amount,
+      },
     });
   }
 }

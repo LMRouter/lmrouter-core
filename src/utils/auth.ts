@@ -7,6 +7,7 @@ import { stripe } from "@better-auth/stripe";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 
+import { handleStripeWebhook } from "./billing.js";
 import { getConfig } from "./config.js";
 import { getDb } from "./database.js";
 import { balance } from "../models/billing.js";
@@ -58,6 +59,7 @@ export const getAuth = (
           stripeClient: stripeClient.stripe,
           stripeWebhookSecret: stripeClient.billingConfig.stripe.webhook_secret,
           createCustomerOnSignUp: true,
+          onEvent: handleStripeWebhook,
         }) as BetterAuthPlugin,
       ],
     });
