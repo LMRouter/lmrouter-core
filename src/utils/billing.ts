@@ -14,6 +14,7 @@ import {
 import { getDb } from "./database.js";
 import { balance, ledger, type LedgerMetadata } from "../models/billing.js";
 import type { ContextEnv } from "../types/hono.js";
+import { getRemoteIp } from "./utils.js";
 
 export interface LMRouterApiCallUsage {
   service_tier?: string;
@@ -114,6 +115,7 @@ export const recordApiCall = async (
         c.var.auth.type === "api-key" ? c.var.auth.apiKey.id : undefined,
       model: c.var.modelName ?? "",
       endpoint: c.req.path,
+      ip: getRemoteIp(c),
       usage,
       pricing,
     },

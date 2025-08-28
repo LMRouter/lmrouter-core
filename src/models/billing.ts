@@ -13,6 +13,7 @@ export interface LedgerMetadataApiCall {
     api_key_id?: string;
     model: string;
     endpoint: string;
+    ip?: string;
     usage?: LMRouterApiCallUsage;
     pricing?: LMRouterConfigModelProviderPricing;
   };

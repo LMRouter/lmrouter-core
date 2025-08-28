@@ -2,6 +2,12 @@
 // Copyright (c) 2025 LMRouter Contributors
 
 import type { Context } from "hono";
+import { getRuntimeKey } from "hono/adapter";
+import { getConnInfo as getConnInfoBun } from "hono/bun";
+import { getConnInfo as getConnInfoWorker } from "hono/cloudflare-workers";
+import { getConnInfo as getConnInfoDeno } from "hono/deno";
+import { HTTPException } from "hono/http-exception";
+import { getConnInfo as getConnInfoNode } from "@hono/node-server/conninfo";
 
 import {
   getConfig,
@@ -18,6 +24,23 @@ export const getUptime = () => {
   const days = Math.floor(hours / 24);
   const uptime = `${days} days, ${hours % 24} hours, ${minutes % 60} minutes, ${seconds % 60} seconds`;
   return uptime;
+};
+
+export const getRemoteIp = (c: Context<ContextEnv>): string | undefined => {
+  switch (getRuntimeKey()) {
+    case "node":
+      return getConnInfoNode(c).remote.address;
+    case "bun":
+      return getConnInfoBun(c).remote.address;
+    case "deno":
+      return getConnInfoDeno(c).remote.address;
+    case "workerd":
+      return getConnInfoWorker(c).remote.address;
+    default:
+      throw new HTTPException(500, {
+        message: "Unsupported runtime",
+      });
+  }
 };
 
 export const getModel = (
