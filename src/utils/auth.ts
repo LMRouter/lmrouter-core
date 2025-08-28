@@ -55,7 +55,7 @@ export const getAuth = (
       plugins: [
         stripe({
           stripeClient: stripeClient.stripe,
-          stripeWebhookSecret: stripeClient.webhookSecret,
+          stripeWebhookSecret: stripeClient.billingConfig.stripe.webhook_secret,
           createCustomerOnSignUp: true,
         }),
       ],

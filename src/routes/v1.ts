@@ -9,11 +9,13 @@ import { getAuth } from "../utils/auth.js";
 import { getConfig } from "../utils/config.js";
 import anthropicRouter from "./v1/anthropic.js";
 import apiKeysRouter from "./v1/api-keys.js";
+import billingRouter from "./v1/billing.js";
 import openaiRouter from "./v1/openai.js";
 
 const v1Router = new Hono<ContextEnv>();
 
 v1Router.route("/anthropic", anthropicRouter);
+v1Router.route("/api-keys", apiKeysRouter);
 
 v1Router.on(["GET", "POST"], "/auth/**", (c) => {
   const cfg = getConfig(c);
@@ -30,8 +32,7 @@ v1Router.on(["GET", "POST"], "/auth/**", (c) => {
   return getAuth(c).handler(c.req.raw);
 });
 
-v1Router.route("/api-keys", apiKeysRouter);
-
+v1Router.route("/billing", billingRouter);
 v1Router.route("/openai", openaiRouter);
 
 v1Router.get("/session", requireAuth("better-auth"), (c) => {

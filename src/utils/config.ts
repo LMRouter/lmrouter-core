@@ -19,6 +19,18 @@ export interface LMRouterConfigAuthDisabled {
   enabled: false;
 }
 
+export interface LMRouterConfigAuthEnabledBilling {
+  stripe: {
+    secret_key: string;
+    webhook_secret: string;
+    lmrouter_credits_product_id: string;
+    lmrouter_fees_product_id: string;
+  };
+  credit_minimum: number;
+  fee_rate: number;
+  fee_minimum: number;
+}
+
 export interface LMRouterConfigAuthEnabled {
   enabled: true;
   database_url: string;
@@ -28,13 +40,7 @@ export interface LMRouterConfigAuthEnabled {
     telemetry?: boolean;
     trusted_origins?: string[];
   };
-  billing: {
-    stripe: {
-      secret_key: string;
-      webhook_secret: string;
-      lmrouter_credits_product_id: string;
-    };
-  };
+  billing: LMRouterConfigAuthEnabledBilling;
 }
 
 export type LMRouterConfigAuth =
