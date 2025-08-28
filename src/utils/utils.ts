@@ -31,9 +31,7 @@ export const getRemoteIp = (c: Context<ContextEnv>): string | undefined => {
     case "workerd":
       return getConnInfoWorker(c).remote.address;
     default:
-      throw new HTTPException(500, {
-        message: "Unsupported runtime",
-      });
+      return;
   }
 };
 

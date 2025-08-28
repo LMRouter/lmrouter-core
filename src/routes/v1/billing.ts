@@ -19,7 +19,7 @@ billingRouter.post("/checkout", async (c) => {
 
   const auth = c.var.auth as AuthBetterAuth;
   const session = await getStripe(c).createCheckoutSession(
-    auth.user,
+    c,
     amount,
     success_url,
   );

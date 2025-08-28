@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 LMRouter Contributors
 
-import type { User } from "better-auth";
+import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import stripe from "stripe";
 
 import { getConfig, type LMRouterConfigAuthEnabledBilling } from "./config.js";
-import type { ContextEnv } from "../types/hono.js";
+import { getDb } from "./database.js";
+import { user as userModel } from "../models/auth.js";
+import type { AuthBetterAuth, ContextEnv } from "../types/hono.js";
 
 let stripeCache: StripeClient | null = null;
 
@@ -33,28 +35,48 @@ class StripeClient {
     this.billingConfig = billingConfig;
   }
 
-  async createCheckoutSession(user: User, amount: number, successUrl: string) {
+  async createCheckoutSession(
+    c: Context<ContextEnv>,
+    amount: number,
+    successUrl: string,
+  ) {
     if (amount < this.billingConfig.credit_minimum) {
       throw new HTTPException(400, {
         message: "Amount is less than the minimum credit amount",
       });
     }
 
-    const customer = await this.stripe.customers.search({
-      query: `email:'${user.email}'`,
-    });
-    let customerId: string;
-    if (customer.data.length === 0) {
-      const newCustomer = await this.stripe.customers.create({
-        email: user.email,
+    const auth = c.var.auth as AuthBetterAuth;
+    const userStripeData = await getDb(c)
+      .select({
+        stripe_customer_id: userModel.stripeCustomerId,
+      })
+      .from(userModel)
+      .where(eq(userModel.id, auth.ownerId));
+    if (userStripeData.length === 0) {
+      throw new HTTPException(500, {
+        message: "Internal server error",
       });
+    }
+
+    let customerId: string;
+    if (!userStripeData[0].stripe_customer_id) {
+      const newCustomer = await this.stripe.customers.create({
+        email: auth.user.email,
+      });
+      await getDb(c)
+        .update(userModel)
+        .set({
+          stripeCustomerId: newCustomer.id,
+        })
+        .where(eq(userModel.id, auth.ownerId));
       customerId = newCustomer.id;
     } else {
-      customerId = customer.data[0].id;
+      customerId = userStripeData[0].stripe_customer_id;
     }
 
     return await this.stripe.checkout.sessions.create({
-      client_reference_id: user.id,
+      client_reference_id: auth.ownerId,
       customer: customerId,
       line_items: [
         {
