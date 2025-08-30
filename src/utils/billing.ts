@@ -27,6 +27,7 @@ export interface LMRouterApiCallUsage {
   input?: number;
   input_image?: number;
   input_audio?: number;
+  input_audio_time?: number;
   output?: number;
   output_audio?: number;
   image?: number;
@@ -61,6 +62,11 @@ export const calculateCost = (
       new Decimal(usage.input_audio ?? 0)
         .mul(pricing.input_audio ?? 0)
         .dividedBy(1000000),
+    );
+    cost = cost.plus(
+      new Decimal(usage.input_audio_time ?? 0)
+        .mul(pricing.input_audio_time ?? 0)
+        .dividedBy(60),
     );
     cost = cost.plus(
       new Decimal(usage.output ?? 0)
