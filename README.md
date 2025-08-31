@@ -32,12 +32,12 @@ ANTHROPIC_MODEL=<YOUR_MODEL_NAME> claude
 
 ### Local Development/Deployment
 
-To setup LMRouter locally, make sure you have Node.js installed, then follow these steps:
+To setup LMRouter locally, make sure you have Node.js and [pnpm](https://pnpm.io/installation) installed, then follow these steps:
 
 ```bash
 git clone https://github.com/LMRouter/lmrouter
 cd lmrouter
-npm install
+pnpm i
 cp config/config.example.yaml config/config.yaml
 ```
 
@@ -45,17 +45,17 @@ Edit `config/config.yaml` to set up your own provider and model configurations.
 
 ```bash
 # Run the server in development mode
-npm run dev
+pnpm dev
 
 # Run the server in production mode
-npm run build
-npm start
+pnpm build
+pnpm start
 ```
 
-Alternatively, you can use `npx` to run the server:
+Alternatively, you can use `pnpx` to run the server:
 
 ```bash
-npx @lmrouter/cli /path/to/config.yaml
+pnpx @lmrouter/cli /path/to/config.yaml
 ```
 
 ## Features
