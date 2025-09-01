@@ -37,7 +37,7 @@ app.get("/", (c) => {
   return c.json({
     message: "Welcome to LMRouter!",
     uptime: getUptime(),
-    apis_available: ["v1"],
+    apis_available: ["anthropic", "openai", "v1"],
   });
 });
 

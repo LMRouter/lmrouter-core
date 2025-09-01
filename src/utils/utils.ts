@@ -16,7 +16,11 @@ import type {
 } from "../types/config.js";
 import type { ContextEnv } from "../types/hono.js";
 
-export const getUptime = () => {
+export const getUptime = (): string | undefined => {
+  if (getRuntimeKey() === "workerd") {
+    return;
+  }
+
   const seconds = Math.floor(process.uptime());
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
