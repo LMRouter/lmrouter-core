@@ -67,6 +67,7 @@ export interface LMRouterConfigProvider {
   type: LMRouterConfigProviderType;
   icon?: string;
   description?: string;
+  website?: string;
   responses?: boolean;
   base_url?: string;
   api_key: string;
@@ -121,6 +122,7 @@ export interface LMRouterConfigModel {
   icon?: string;
   author?: string;
   description?: string;
+  website?: string;
   created?: number;
   providers: LMRouterConfigModelProvider[];
 }
