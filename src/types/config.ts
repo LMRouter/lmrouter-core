@@ -65,6 +65,7 @@ export type LMRouterConfigProviderType =
 export interface LMRouterConfigProvider {
   name?: string;
   type: LMRouterConfigProviderType;
+  icon?: string;
   responses?: boolean;
   base_url?: string;
   api_key: string;
@@ -116,6 +117,8 @@ export type LMRouterConfigModelType =
 export interface LMRouterConfigModel {
   name?: string;
   type?: LMRouterConfigModelType;
+  icon?: string;
+  author?: string;
   description?: string;
   created?: number;
   providers: LMRouterConfigModelProvider[];
