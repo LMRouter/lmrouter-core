@@ -22,6 +22,7 @@ export interface LMRouterConfigAuthEnabledBilling {
   };
   credit_minimum: number;
   fee_rate: number;
+  fee_flat: number;
   fee_minimum: number;
 }
 

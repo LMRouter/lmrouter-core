@@ -94,7 +94,8 @@ class StripeClient {
             product: this.billingConfig.stripe.lmrouter_fees_product_id,
             unit_amount: Math.round(
               Math.max(
-                amount * this.billingConfig.fee_rate,
+                amount * this.billingConfig.fee_rate +
+                  this.billingConfig.fee_flat,
                 this.billingConfig.fee_minimum,
               ) * 100,
             ),
