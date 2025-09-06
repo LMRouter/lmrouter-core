@@ -30,14 +30,6 @@ modelsRouter.get("/:model{.+}", (c) => {
   return c.json({
     id: modelName,
     ...model,
-    providers: model.providers.map((provider) => ({
-      ...provider,
-      provider: {
-        id: provider.provider,
-        ...cfg.providers[provider.provider],
-        api_key: undefined,
-      },
-    })),
   } as LMRouterModelGetResponse);
 });
 
@@ -47,14 +39,6 @@ modelsRouter.get("/", (c) => {
     return {
       id: name,
       ...model,
-      providers: model.providers.map((provider) => ({
-        ...provider,
-        provider: {
-          id: provider.provider,
-          ...cfg.providers[provider.provider],
-          api_key: undefined,
-        },
-      })),
     };
   });
 

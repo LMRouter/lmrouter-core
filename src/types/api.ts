@@ -3,11 +3,7 @@
 
 import type { Session, User } from "better-auth";
 
-import type {
-  LMRouterConfigModel,
-  LMRouterConfigModelProvider,
-  LMRouterConfigProvider,
-} from "./config.js";
+import type { LMRouterConfigModel, LMRouterConfigProvider } from "./config.js";
 
 export interface LMRouterSessionResponse {
   session: Session;
@@ -56,18 +52,21 @@ export interface LMRouterCheckoutResponse {
   session_url: string;
 }
 
-export type LMRouterModelGetResponse = Omit<
-  LMRouterConfigModel,
-  "providers"
-> & {
+export type LMRouterModelGetResponse = LMRouterConfigModel & {
   id: string;
-  providers: (Omit<LMRouterConfigModelProvider, "provider"> & {
-    provider: Omit<LMRouterConfigProvider, "api_key"> & {
-      id: string;
-    };
-  })[];
 };
 
 export interface LMRouterModelListResponse {
   models: LMRouterModelGetResponse[];
+}
+
+export type LMRouterProviderGetResponse = Omit<
+  LMRouterConfigProvider,
+  "api_key"
+> & {
+  id: string;
+};
+
+export interface LMRouterProviderListResponse {
+  providers: LMRouterProviderGetResponse[];
 }

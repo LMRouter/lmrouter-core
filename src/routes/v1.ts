@@ -13,6 +13,7 @@ import apiKeysRouter from "./v1/api-keys.js";
 import billingRouter from "./v1/billing.js";
 import modelsRouter from "./v1/models.js";
 import openaiRouter from "./v1/openai.js";
+import providersRouter from "./v1/providers.js";
 
 const v1Router = new Hono<ContextEnv>();
 
@@ -37,6 +38,7 @@ v1Router.on(["GET", "POST"], "/auth/**", (c) => {
 v1Router.route("/billing", billingRouter);
 v1Router.route("/models", modelsRouter);
 v1Router.route("/openai", openaiRouter);
+v1Router.route("/providers", providersRouter);
 
 v1Router.get("/session", requireAuth("better-auth"), (c) => {
   const auth = c.var.auth as AuthBetterAuth;
